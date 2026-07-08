@@ -26,18 +26,10 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".accessibility.SideKeyAccessibilityService"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
+        <!-- v0.46.0: 彻底移除 AccessibilityService 注册
+             原因：即使最小化配置（eventTypes="" + canRetrieveWindowContent=false），
+             AccessibilityService 仍会被系统绑定并注入 App 进程，导致第三方 App 闪退。
+             改用 root getevent 监听音量键。 -->
 
         <service
             android:name=".service.AppRedirectService"
@@ -65,6 +57,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <!-- v0.51: App 更新后自动启动，避免首次打开闪退（isPkgStopped 问题） -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 

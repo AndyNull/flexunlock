@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- v0.45.0: 最小化配置，不注入 App 进程 -->
-<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/accessibility_description"
-    android:accessibilityEventTypes=""
-    android:accessibilityFeedbackType="feedbackGeneric"
-    android:canRequestFilterKeyEvents="true"
-    android:canRetrieveWindowContent="false"
-    android:notificationTimeout="0" />

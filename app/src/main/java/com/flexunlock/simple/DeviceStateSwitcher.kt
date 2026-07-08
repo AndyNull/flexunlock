@@ -8,20 +8,22 @@ import timber.log.Timber
 /**
  * Samsung Z Flip 设备状态 ID（来自 DeviceStateManager）
  *
- * 0: CLOSED          合盖
- * 1: HALF_OPENED     半开
- * 2: OPENED          展开
- * 3: REAR_DISPLAY    后屏模式
- * 4: CONCURRENT      双屏同时显示 ← 本工具核心切换目标
+ * v0.47.0: 修正状态映射！以下是从 One UI 8.5 实测日志读到的真实状态：
+ *   0: CLOSED          合盖（外屏 ON，内屏 OFF）
+ *   1: TENT            帐篷模式（过渡状态）
+ *   2: HALF_OPENED     半开（过渡状态）
+ *   3: OPENED          完全展开（内屏 ON，外屏 OFF）  ← v0.46 之前错认为 REAR_DISPLAY
+ *   4: CONCURRENT      双屏同时显示（如果支持）
  *
- * Samsung 还可能有自定义状态 ID（如 5/6/7），可通过 print-states 列出。
+ * 之前 v0.46 及更早版本的映射是错的（基于老 One UI 版本），导致 AppRedirectService
+ * 在展开状态(state=3)误判为合盖，触发不该有的 redirect。
  */
 object DeviceStateSwitcher {
 
     /** 目标状态：CONCURRENT — 双屏同时显示，外屏显示内屏完整内容 */
     const val STATE_CONCURRENT = 4
 
-    /** 系统默认（合盖 = 0，展开 = 2，由系统自动管理） */
+    /** 系统默认（合盖 = 0，展开 = 3，由系统自动管理） */
     const val STATE_RESET = -1
 
     /** 切换结果 */
@@ -78,8 +80,9 @@ object DeviceStateSwitcher {
         Shell.getShell().newJob().add("wm density -d 1 480").exec()
         Thread.sleep(300)
 
-        // 3. 启动 LauncherActivity 到 display 1（用 -S 0 不强制重启，只 bring to front）
-        val launchCmd = """su 2000 -c "am start --display 1 -W -n $LAUNCHER_PKG/$activityClass" """.trimIndent()
+        // 3. 启动 LauncherActivity 到 display 1
+        // v0.47.0: 去掉 -W 标志，避免 10 秒同步阻塞导致 ANR
+        val launchCmd = """su 2000 -c "am start --display 1 -n $LAUNCHER_PKG/$activityClass" """.trimIndent()
         Timber.i("Launching: $launchCmd")
 
         val out = ArrayList<String>()
@@ -226,12 +229,12 @@ object DeviceStateSwitcher {
         if (r.code == 0) stdout else "error: ${stdout.ifEmpty { "exit=${r.code}" }}"
     }
 
-    /** 状态 ID 转可读名 */
+    /** 状态 ID 转可读名 (v0.47.0: 修正映射) */
     fun stateName(id: Int): String = when (id) {
         0 -> "CLOSED (合盖)"
-        1 -> "HALF_OPENED (半开)"
-        2 -> "OPENED (展开)"
-        3 -> "REAR_DISPLAY (后屏)"
+        1 -> "TENT (帐篷)"
+        2 -> "HALF_OPENED (半开)"
+        3 -> "OPENED (展开)"
         4 -> "CONCURRENT (双屏同时显示) ← 目标"
         -1 -> "RESET (系统默认)"
         else -> "UNKNOWN ($id)"

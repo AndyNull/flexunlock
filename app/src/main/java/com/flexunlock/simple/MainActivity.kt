@@ -1,16 +1,12 @@
 package com.flexunlock.simple
 
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.flexunlock.simple.accessibility.SideKeyAccessibilityService
 import com.flexunlock.simple.databinding.ActivityMainBinding
-import com.flexunlock.simple.root.RootA11yEnabler
 import com.flexunlock.simple.service.AppRedirectService
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -34,7 +30,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnEnableGuard.setOnClickListener { startGuard() }
         binding.btnDisableGuard.setOnClickListener { stopGuard() }
-        binding.btnOpenAccessibility.setOnClickListener { openAccessibilitySettings() }
+        // v0.46.0: 移除 AccessibilityService 按钮（已彻底废弃，改用 root getevent）
+        binding.btnOpenAccessibility.visibility = View.GONE
 
         refreshStatus()
     }
@@ -96,27 +93,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openAccessibilitySettings() {
-        lifecycleScope.launch {
-            binding.btnOpenAccessibility.isEnabled = false
-            if (isAccessibilityEnabled()) {
-                showSnack("双击音量键已启用")
-            } else {
-                showSnack("正在用 root 启用...")
-                val ok = RootA11yEnabler.enable()
-                showSnack(if (ok) "已自动启用（root）" else "启用失败")
-            }
-            binding.btnOpenAccessibility.isEnabled = true
-            refreshStatus()
-        }
-    }
-
-    private fun isAccessibilityEnabled(): Boolean {
-        val expected = ComponentName(this, SideKeyAccessibilityService::class.java)
-        val enabled = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
-        return enabled.contains(expected.flattenToString())
-    }
-
     private fun setButtonsEnabled(enabled: Boolean) {
         binding.btnHomeMode.isEnabled = enabled
         binding.btnRecentsMode.isEnabled = enabled
@@ -143,7 +119,8 @@ class MainActivity : AppCompatActivity() {
             val redirectRunning = getSharedPreferences("flexunlock", MODE_PRIVATE).getBoolean("redirect_enabled", false)
             binding.tvGuardStatus.text = if (redirectRunning) "App重定向：运行中" else "App重定向：未启动"
 
-            binding.tvA11yStatus.text = if (isAccessibilityEnabled()) "双击音量键：已启用" else "双击音量键：未启用"
+            // v0.46.0: 音量键监听由 root getevent 实现，始终启用
+            binding.tvA11yStatus.text = "双击音量键：root getevent（始终启用）"
         }
     }
 
