@@ -11,9 +11,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+/**
+ * v0.45.0: 最小化 AccessibilityService
+ *
+ * 闪退根因：TYPES_ALL_MASK + canRetrieveWindowContent=true 会注入每个 App 进程
+ *
+ * 修复：
+ *  1. eventTypes = 0（不监听任何事件）
+ *  2. canRetrieveWindowContent = false（不读取窗口内容）
+ *  3. 只保留 FLAG_REQUEST_FILTER_KEY_EVENTS（监听音量键）
+ *  4. notificationTimeout = 0
+ *
+ * 这样 AccessibilityService 不会注入 App 进程，只拦截按键事件
+ */
 class SideKeyAccessibilityService : AccessibilityService() {
+
     companion object {
-        private const val TAG = "SideKeyA11y"
+        private const val TAG = "FlexUnlockA11y"
         private const val DOUBLE_CLICK_THRESHOLD_MS = 400L
     }
 
@@ -23,14 +37,16 @@ class SideKeyAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        // v0.45.0: 最小化配置——只拦截按键，不监听事件，不读取窗口
         val info = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+            eventTypes = 0  // 不监听任何 accessibility 事件（避免注入 App）
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
-            notificationTimeout = 100L
+            notificationTimeout = 0L
+            // 不设置 canRetrieveWindowContent（默认 false）
         }
         serviceInfo = info
-        Timber.i("$TAG: Service connected — listening for VOLUME key double-clicks")
+        Timber.i("$TAG: Service connected (minimal mode, no injection)")
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
@@ -40,7 +56,7 @@ class SideKeyAccessibilityService : AccessibilityService() {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     val elapsed = now - lastVolUpTime
                     if (elapsed < DOUBLE_CLICK_THRESHOLD_MS) {
-                        Timber.i("$TAG: 🔥 VOLUME_UP double-click")
+                        Timber.i("$TAG: VOLUME_UP double-click")
                         handleDoubleClick()
                         lastVolUpTime = 0
                         return true
@@ -52,7 +68,7 @@ class SideKeyAccessibilityService : AccessibilityService() {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     val elapsed = now - lastVolDownTime
                     if (elapsed < DOUBLE_CLICK_THRESHOLD_MS) {
-                        Timber.i("$TAG: 🔥 VOLUME_DOWN double-click")
+                        Timber.i("$TAG: VOLUME_DOWN double-click")
                         handleDoubleClick()
                         lastVolDownTime = 0
                         return true
