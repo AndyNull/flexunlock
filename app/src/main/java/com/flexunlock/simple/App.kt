@@ -28,12 +28,19 @@ class App : Application() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 Thread.sleep(1000)
+
+                // v0.43.1: 清除旧版本残留的 force_resizable 设置（导致内屏App首次闪退）
+                Shell.getShell().newJob().add("settings delete global force_resizable_activities").exec()
+                Shell.getShell().newJob().add("settings delete global always_supports_multi_window").exec()
+                Shell.getShell().newJob().add("settings delete global activities_resizable_for_all").exec()
+                Shell.getShell().newJob().add("settings delete global sem_force_activities_resizable").exec()
+                Shell.getShell().newJob().add("settings delete global force_enable_multi_display").exec()
+                Timber.i("Cleared legacy force_resizable settings")
+
                 // 1. 启用 AccessibilityService（双击音量键）
                 if (!RootA11yEnabler.isEnabled()) {
                     RootA11yEnabler.enable()
                 }
-                // v0.43.0: 移除 forceAllAppsResizable（导致内屏App首次闪退）
-                // DeviceStateSwitcher.forceAllAppsResizable()
                 // 2. 启动 App 重定向服务
                 val intent = Intent(this@App, AppRedirectService::class.java).apply {
                     action = AppRedirectService.ACTION_START
