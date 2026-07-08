@@ -74,6 +74,7 @@ class AppRedirectService : Service() {
             Timber.i("App redirect polling started (v0.37.0)")
             movedTasks.clear(); resolveCache.clear()
             var wasCoverActive = false
+            var coverModeSet = false  // v0.41.0: 外屏模式标志是否已设置
             while (isRunning) {
                 try {
                     val stateStr = DeviceStateSwitcher.getCurrentState()
@@ -81,12 +82,20 @@ class AppRedirectService : Service() {
                     val coverActive = (state == 0 || state == 3)
                     if (coverActive) {
                         wasCoverActive = true
+                        // v0.41.0: 合盖时设置外屏模式标志（LSPosed 模块读取）
+                        if (!coverModeSet) {
+                            Shell.getShell().newJob().add("touch /data/local/tmp/flexunlock_cover_mode").exec()
+                            coverModeSet = true
+                            Timber.i("Cover mode flag set")
+                        }
                         val now = System.currentTimeMillis()
-                        // v0.40.0: 冷却期缩短到 300ms（更跟手）
                         if (now - lastRedirectTime > 300) redirectAppsFromDisplay0()
                     } else {
                         if (wasCoverActive) {
                             Timber.i("Phone opened, cleaning cover")
+                            // v0.41.0: 展开时清除外屏模式标志
+                            Shell.getShell().newJob().add("rm -f /data/local/tmp/flexunlock_cover_mode").exec()
+                            coverModeSet = false
                             Shell.getShell().newJob().add("cmd device_state state reset").exec()
                             Thread.sleep(300)
                             Shell.getShell().newJob().add("am force-stop com.sec.android.app.launcher").exec()

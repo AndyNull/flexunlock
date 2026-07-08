@@ -119,6 +119,21 @@ object DeviceStateSwitcher {
     suspend fun enableHomeMode(): Result = enableConcurrentAndLaunch(LAUNCHER_HOME_ACT)
 
     /**
+     * v0.41.0: 设置/清除外屏模式标志
+     * LSPosed 模块通过此文件判断是否篡改 displayId
+     */
+    suspend fun setCoverMode(enabled: Boolean): Result = withContext(Dispatchers.IO) {
+        if (!isRootAvailable()) return@withContext Result.Failure("no root")
+        val cmd = if (enabled) {
+            "touch /data/local/tmp/flexunlock_cover_mode"
+        } else {
+            "rm -f /data/local/tmp/flexunlock_cover_mode"
+        }
+        Shell.getShell().newJob().add(cmd).exec()
+        Result.Success(if (enabled) "cover mode on" else "cover mode off")
+    }
+
+    /**
      * v0.14.0: 强制所有 App 可跨 display 启动。
      */
     suspend fun forceAllAppsResizable(): Result = withContext(Dispatchers.IO) {
