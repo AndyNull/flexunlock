@@ -123,6 +123,7 @@ class AppRedirectService : Service() {
                     }
                 } catch (e: Exception) { Timber.e(e, "Polling error") }
             }
+        }
     }
 
     /**
