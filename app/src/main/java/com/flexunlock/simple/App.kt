@@ -53,9 +53,12 @@ class App : Application() {
                     Timber.i("Disabled legacy AccessibilityService (causes App crash)")
                 }
 
-                // v0.44.2: 不自动启用 AccessibilityService（闪退根因）
-                // 双击音量键改为手动启用（在 App 设置里点击按钮）
-                // 只启动 App 重定向服务
+                // v0.45.2: 恢复自动启用 AccessibilityService（最小化配置后不再注入App）
+                if (!RootA11yEnabler.isEnabled()) {
+                    RootA11yEnabler.enable()
+                }
+
+                // 启动 App 重定向服务
                 val intent = Intent(this@App, AppRedirectService::class.java).apply {
                     action = AppRedirectService.ACTION_START
                 }

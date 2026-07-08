@@ -74,43 +74,55 @@ class AppRedirectService : Service() {
             Timber.i("App redirect polling started (v0.45.1)")
             movedTasks.clear(); resolveCache.clear()
             var wasCoverActive = false
-            var stableState = -100  // 稳定的 state（连续2次相同才确认）
+            var stableState = -100
             var lastRawState = -100
+            var confirmCount = 0
 
             while (isRunning) {
                 try {
                     val stateStr = DeviceStateSwitcher.getCurrentState()
                     val rawState = stateStr.toIntOrNull() ?: -1
 
-                    // v0.45.1: 状态去抖——连续2次相同才确认状态变化
+                    // v0.45.2: 状态去抖——连续3次相同才确认
                     if (rawState == lastRawState) {
-                        stableState = rawState
+                        confirmCount++
+                        if (confirmCount >= 3) {
+                            stableState = rawState
+                            confirmCount = 0
+                        } else {
+                            delay(300)
+                            continue
+                        }
                     } else {
                         lastRawState = rawState
-                        delay(500)  // 等 500ms 再确认
+                        confirmCount = 1
+                        delay(300)
                         continue
                     }
 
                     val coverActive = (stableState == 0 || stableState == 3)
 
                     if (coverActive) {
-                        wasCoverActive = true
+                        // v0.45.2: 合盖时才执行重定向
+                        if (!wasCoverActive) {
+                            Timber.i("Cover detected (state=$stableState), starting redirect")
+                            wasCoverActive = true
+                        }
                         val now = System.currentTimeMillis()
                         if (now - lastRedirectTime > 300) redirectAppsFromDisplay0()
+                        delay(300)  // 合盖时 300ms 轮询
                     } else {
-                        // v0.45.1: 展开时不执行任何 am start 命令！
-                        // 之前的 moveTasksBackToDisplay0() 会强制重启 App 导致闪退
+                        // v0.45.2: 展开时完全不执行任何 shell 命令
                         if (wasCoverActive) {
-                            Timber.i("Phone opened, clearing state (no am start)")
+                            Timber.i("Phone opened (state=$stableState), stopping all redirect")
                             wasCoverActive = false
                             movedTasks.clear()
                             resolveCache.clear()
                         }
+                        delay(2000)  // 展开时 2 秒轮询（最小干扰）
                     }
                 } catch (e: Exception) { Timber.e(e, "Polling error") }
-                delay(1000)  // v0.45.1: 展开时 1 秒轮询（减少干扰）
             }
-        }
     }
 
     /**

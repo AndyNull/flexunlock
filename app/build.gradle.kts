@@ -11,8 +11,8 @@ android {
         applicationId = "com.flexunlock.simple"
         minSdk = 31
         targetSdk = 34
-        versionCode = 48
-        versionName = "0.45.1"
+        versionCode = 49
+        versionName = "0.45.2"
     }
 
     buildTypes {
