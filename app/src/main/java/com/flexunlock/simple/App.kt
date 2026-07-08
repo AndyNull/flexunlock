@@ -107,45 +107,49 @@ class App : Application() {
                 // 直接用 getevent -ql 不带 device 参数，监听所有设备
                 Timber.i("Volume key listener: monitoring ALL devices (v0.51.0)")
 
-                // 双击窗口（秒，awk systime 精度）
-                // v0.53: 用 2 秒窗口（awk systime 是整数秒，1 秒会跨边界失败）
-                val DOUBLE_CLICK_SEC = 2
+                // 双击窗口（毫秒）
+                val DOUBLE_CLICK_MS = 800
 
-                // v0.53: 彻底修复 while 子 shell 变量丢失问题
-                // 之前所有版本都有这个 bug：getevent | while read — while 在子 shell 里
-                // LAST_UP/LAST_DN 每次迭代都重置为 0，双击永远检测不到
+                // v0.54: 彻底简化 — 用最基础的 shell，不依赖 awk/systime
+                // v0.53 失败原因：busybox awk 不支持 systime()
                 //
-                // 修复方案：用 awk 处理 getevent 输出，awk 变量在所有行之间持久
-                // awk 的 systime() 返回整数秒，所以窗口设为 2 秒
-                // （两次按键在同一秒或相邻秒都算双击）
+                // v0.54 方案：用 while read + 文件存储状态
+                // 文件 /data/local/tmp/flexunlock_vol_state 存 "UP_TS DOWN_TS"
+                // 每次按键读文件、更新文件（文件 IO 跨子 shell 持久）
+                // 时间用 cat /proc/uptime（毫秒级，Android 都支持）
                 val script = """cat > /data/local/tmp/flexunlock_vol.sh << 'VOLEOF'
 #!/system/bin/sh
 TRIGGER=/data/local/tmp/flexunlock_vol_trigger
+STATE=/data/local/tmp/flexunlock_vol_state
 rm -f ${'$'}TRIGGER
-# v0.53: 用 awk 处理 getevent 输出，awk 变量在所有行之间持久
-# 检测 2 秒内的双击（systime 是整数秒，2 秒窗口覆盖跨边界情况）
-getevent -ql 2>/dev/null | awk '
-/KEY_VOLUMEUP/ && /DOWN/ {
-    now = systime()
-    if (last_up > 0 && now - last_up < $DOUBLE_CLICK_SEC) {
-        system("echo UP > " TRIGGER)
-        last_up = 0
-    } else {
-        last_up = now
-    }
-    next
-}
-/KEY_VOLUMEDOWN/ && /DOWN/ {
-    now = systime()
-    if (last_dn > 0 && now - last_dn < $DOUBLE_CLICK_SEC) {
-        system("echo DOWN > " TRIGGER)
-        last_dn = 0
-    } else {
-        last_dn = now
-    }
-    next
-}
-' TRIGGER="${'$'}TRIGGER"
+echo "0 0" > ${'$'}STATE
+getevent -ql 2>/dev/null | while IFS= read -r line; do
+    case "${'$'}line" in
+        *KEY_VOLUMEUP*DOWN*)
+            # 用 /proc/uptime 获取时间（秒.毫秒），转成毫秒整数
+            NOW=${'$'}(cat /proc/uptime | awk '{print int($1*1000)}')
+            read VUP VDN < ${'$'}STATE
+            DIFF=$(( NOW - VUP ))
+            if [ "${'$'}DIFF" -lt $DOUBLE_CLICK_MS ] && [ "${'$'}VUP" -gt 0 ]; then
+                echo "UP" > ${'$'}TRIGGER
+                echo "0 0" > ${'$'}STATE
+            else
+                echo "${'$'}NOW ${'$'}VDN" > ${'$'}STATE
+            fi
+            ;;
+        *KEY_VOLUMEDOWN*DOWN*)
+            NOW=${'$'}(cat /proc/uptime | awk '{print int($1*1000)}')
+            read VUP VDN < ${'$'}STATE
+            DIFF=$(( NOW - VDN ))
+            if [ "${'$'}DIFF" -lt $DOUBLE_CLICK_MS ] && [ "${'$'}VDN" -gt 0 ]; then
+                echo "DOWN" > ${'$'}TRIGGER
+                echo "0 0" > ${'$'}STATE
+            else
+                echo "${'$'}VUP ${'$'}NOW" > ${'$'}STATE
+            fi
+            ;;
+    esac
+done
 VOLEOF
 chmod 755 /data/local/tmp/flexunlock_vol.sh""".trimIndent()
 
@@ -153,7 +157,7 @@ chmod 755 /data/local/tmp/flexunlock_vol.sh""".trimIndent()
 
                 // v0.50: 用 setsid 启动，创建新会话，不受 App 进程影响
                 Shell.getShell().newJob().add("setsid sh /data/local/tmp/flexunlock_vol.sh < /dev/null > /dev/null 2>&1 &").exec()
-                Timber.i("Volume key listener started (v0.53.0, awk, double-click window=${DOUBLE_CLICK_SEC}s)")
+                Timber.i("Volume key listener started (v0.54.0, file state, double-click window=${DOUBLE_CLICK_MS}ms)")
 
                 // 轮询 trigger 文件
                 // v0.50: 每 1000ms 轮询一次（v0.46 是 500ms）
