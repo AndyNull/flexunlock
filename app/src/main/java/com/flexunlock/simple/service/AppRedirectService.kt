@@ -74,32 +74,41 @@ class AppRedirectService : Service() {
             Timber.i("App redirect polling started (v0.37.0)")
             movedTasks.clear(); resolveCache.clear()
             var wasCoverActive = false
-            var coverModeSet = false  // v0.41.0: 外屏模式标志是否已设置
+            var coverModeSet = false
+            var lastState = -100
             while (isRunning) {
                 try {
                     val stateStr = DeviceStateSwitcher.getCurrentState()
                     val state = stateStr.toIntOrNull() ?: -1
+
+                    // 只在状态变化时操作（减少 shell 命令频率）
+                    if (state == lastState) {
+                        delay(1000)  // 状态没变化时 1 秒轮询
+                        continue
+                    }
+                    lastState = state
+                    Timber.i("State changed: $state (${DeviceStateSwitcher.stateName(state)})")
+
                     val coverActive = (state == 0 || state == 3)
                     if (coverActive) {
                         wasCoverActive = true
-                        // v0.41.0: 合盖时设置外屏模式标志（LSPosed 模块读取）
                         if (!coverModeSet) {
                             Shell.getShell().newJob().add("touch /data/local/tmp/flexunlock_cover_mode").exec()
                             coverModeSet = true
                             Timber.i("Cover mode flag set")
                         }
-                        val now = System.currentTimeMillis()
-                        if (now - lastRedirectTime > 300) redirectAppsFromDisplay0()
+                        redirectAppsFromDisplay0()
                     } else {
+                        // v0.43.2: 展开时只清理标志，不执行 state reset（避免闪退）
                         if (wasCoverActive) {
-                            Timber.i("Phone opened, cleaning cover")
-                            // v0.41.0: 展开时清除外屏模式标志
+                            Timber.i("Phone opened, cleaning cover flag only")
                             Shell.getShell().newJob().add("rm -f /data/local/tmp/flexunlock_cover_mode").exec()
                             coverModeSet = false
-                            Shell.getShell().newJob().add("cmd device_state state reset").exec()
-                            // v0.43.0: 移除 force-stop launcher（导致内屏App首次闪退）
-                            // Shell.getShell().newJob().add("am force-stop com.sec.android.app.launcher").exec()
+                            // v0.43.2: 不执行 state reset——这会导致正在启动的 App configuration change 闪退
+                            // Shell.getShell().newJob().add("cmd device_state state reset").exec()
                             wasCoverActive = false
+                            movedTasks.clear()
+                            resolveCache.clear()
                         }
                     }
                 } catch (e: Exception) { Timber.e(e, "Polling error") }
