@@ -97,8 +97,8 @@ class AppRedirectService : Service() {
                             Shell.getShell().newJob().add("rm -f /data/local/tmp/flexunlock_cover_mode").exec()
                             coverModeSet = false
                             Shell.getShell().newJob().add("cmd device_state state reset").exec()
-                            Thread.sleep(300)
-                            Shell.getShell().newJob().add("am force-stop com.sec.android.app.launcher").exec()
+                            // v0.43.0: 移除 force-stop launcher（导致内屏App首次闪退）
+                            // Shell.getShell().newJob().add("am force-stop com.sec.android.app.launcher").exec()
                             wasCoverActive = false
                         }
                     }

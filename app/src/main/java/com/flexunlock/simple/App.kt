@@ -32,16 +32,16 @@ class App : Application() {
                 if (!RootA11yEnabler.isEnabled()) {
                     RootA11yEnabler.enable()
                 }
-                // 2. 强制所有 App resizable
-                DeviceStateSwitcher.forceAllAppsResizable()
-                // 3. 启动 App 重定向服务（v0.36 同款）
+                // v0.43.0: 移除 forceAllAppsResizable（导致内屏App首次闪退）
+                // DeviceStateSwitcher.forceAllAppsResizable()
+                // 2. 启动 App 重定向服务
                 val intent = Intent(this@App, AppRedirectService::class.java).apply {
                     action = AppRedirectService.ACTION_START
                 }
                 ContextCompat.startForegroundService(this@App, intent)
                 getSharedPreferences("flexunlock", MODE_PRIVATE)
                     .edit().putBoolean("redirect_enabled", true).apply()
-                Timber.i("All features auto-enabled (a11y + redirect)")
+                Timber.i("All features auto-enabled")
             } catch (e: Exception) {
                 Timber.e(e, "Auto-enable failed")
             }
