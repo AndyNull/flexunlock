@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlexUnlock</string>
+    <string name="title">外屏完整内容</string>
+    <string name="subtitle">基于 Android DeviceStateManager 一键切换</string>
+
+    <string name="btn_enable">切换：外屏显示内屏内容</string>
+    <string name="btn_reset">还原：恢复系统默认</string>
+    <string name="btn_check_state">查询当前状态</string>
+    <string name="btn_print_states">列出所有状态</string>
+
+    <string name="status_label">状态</string>
+    <string name="status_unknown">检测中…</string>
+    <string name="status_no_root">未授权 root</string>
+    <string name="status_idle">当前：系统默认</string>
+    <string name="status_concurrent">当前：双屏同时显示（外屏=内屏）</string>
+
+    <string name="msg_enable_success">已切换：外屏将显示内屏完整内容。请合盖查看效果。</string>
+    <string name="msg_enable_failed">切换失败：%1$s</string>
+    <string name="msg_reset_success">已还原系统默认状态</string>
+    <string name="msg_reset_failed">还原失败：%1$s</string>
+
+    <string name="accessibility_description">FlexUnlock 无障碍服务：监听音量键双击触发封面屏桌面切换</string>
+
+    <string name="about">说明\n\n通过 root 执行 cmd device_state + am start --display 1 让外屏显示完整内屏桌面。\n\n需要 root 权限。合盖自动切换，双击音量键手动切换。</string>
+</resources>
