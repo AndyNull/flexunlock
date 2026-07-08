@@ -71,31 +71,44 @@ class AppRedirectService : Service() {
     private fun startPolling() {
         pollJob?.cancel()
         pollJob = serviceScope.launch {
-            Timber.i("App redirect polling started (v0.37.0)")
+            Timber.i("App redirect polling started (v0.45.1)")
             movedTasks.clear(); resolveCache.clear()
             var wasCoverActive = false
+            var stableState = -100  // 稳定的 state（连续2次相同才确认）
+            var lastRawState = -100
+
             while (isRunning) {
                 try {
                     val stateStr = DeviceStateSwitcher.getCurrentState()
-                    val state = stateStr.toIntOrNull() ?: -1
-                    val coverActive = (state == 0 || state == 3)
+                    val rawState = stateStr.toIntOrNull() ?: -1
+
+                    // v0.45.1: 状态去抖——连续2次相同才确认状态变化
+                    if (rawState == lastRawState) {
+                        stableState = rawState
+                    } else {
+                        lastRawState = rawState
+                        delay(500)  // 等 500ms 再确认
+                        continue
+                    }
+
+                    val coverActive = (stableState == 0 || stableState == 3)
+
                     if (coverActive) {
                         wasCoverActive = true
                         val now = System.currentTimeMillis()
                         if (now - lastRedirectTime > 300) redirectAppsFromDisplay0()
                     } else {
+                        // v0.45.1: 展开时不执行任何 am start 命令！
+                        // 之前的 moveTasksBackToDisplay0() 会强制重启 App 导致闪退
                         if (wasCoverActive) {
-                            Timber.i("Phone opened, moving tasks back to display 0")
-                            // v0.44.1: 把 display 1 上的 App 移回 display 0
-                            // 不用 state reset / force-stop，而是用 am start 把 App 重新启动到内屏
-                            moveTasksBackToDisplay0()
+                            Timber.i("Phone opened, clearing state (no am start)")
                             wasCoverActive = false
                             movedTasks.clear()
                             resolveCache.clear()
                         }
                     }
                 } catch (e: Exception) { Timber.e(e, "Polling error") }
-                delay(300)  // v0.40.0: 300ms 轮询（更跟手）
+                delay(1000)  // v0.45.1: 展开时 1 秒轮询（减少干扰）
             }
         }
     }
