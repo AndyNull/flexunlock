@@ -85,9 +85,10 @@ class AppRedirectService : Service() {
                         if (now - lastRedirectTime > 300) redirectAppsFromDisplay0()
                     } else {
                         if (wasCoverActive) {
-                            Timber.i("Phone opened, cleaning cover")
-                            // v0.44.0: 不执行 state reset（导致内屏App首次闪退）
-                            // v0.44.0: 不执行 force-stop launcher（导致launcher重启闪退）
+                            Timber.i("Phone opened, moving tasks back to display 0")
+                            // v0.44.1: 把 display 1 上的 App 移回 display 0
+                            // 不用 state reset / force-stop，而是用 am start 把 App 重新启动到内屏
+                            moveTasksBackToDisplay0()
                             wasCoverActive = false
                             movedTasks.clear()
                             resolveCache.clear()
@@ -95,6 +96,43 @@ class AppRedirectService : Service() {
                     }
                 } catch (e: Exception) { Timber.e(e, "Polling error") }
                 delay(300)  // v0.40.0: 300ms 轮询（更跟手）
+            }
+        }
+    }
+
+    /**
+     * v0.44.1: 展开时把 display 1 上的 App 移回 display 0
+     * 不用 state reset / force-stop，而是直接查 display 1 上的 task 并移回
+     */
+    private suspend fun moveTasksBackToDisplay0() {
+        val cmd = """dumpsys activity activities | awk '/^Display #1/{f=1;next} /^Display #/{f=0} f' | grep 'type=standard'"""
+        val out = ArrayList<String>()
+        Shell.getShell().newJob().add(cmd).to(out, ArrayList()).exec()
+
+        for (line in out) {
+            if (!line.contains("type=standard")) continue
+            val taskMatch = Regex("""#(\d+)""").find(line) ?: continue
+            val taskId = taskMatch.groupValues[1].toIntOrNull() ?: continue
+
+            var pkg: String? = null
+            val iMatch = Regex("""I=(\S+/[^\s}]+)""").find(line)
+            if (iMatch != null) {
+                pkg = iMatch.groupValues[1].substringBefore("/")
+            }
+            if (pkg == null) {
+                val aMatch = Regex("""A=\d+:([^\s}]+)""").find(line)
+                if (aMatch != null) pkg = aMatch.groupValues[1]
+            }
+            if (pkg == null) continue
+            if (pkg == "com.android.systemui" || pkg == "com.sec.android.app.launcher" ||
+                pkg == "com.flexunlock.simple" || pkg == "android") continue
+
+            Timber.i("Moving $pkg (task=$taskId) back to display 0")
+            // 用 am start 不带 --display，系统会启动到默认 display (0)
+            // 不用 -W（不等待，避免阻塞）
+            val component = iMatch?.groupValues?.get(1) ?: samsungAppComponents[pkg]
+            if (component != null && component.contains("/")) {
+                Shell.getShell().newJob().add("""su 2000 -c "am start -n $component" """).exec()
             }
         }
     }
