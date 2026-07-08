@@ -31,9 +31,9 @@ class AppRedirectService : Service() {
         "com.samsung.android.dialer" to "com.samsung.android.dialer/.DialtactsActivity",
         "android.task.camera" to "com.sec.android.app.camera/.Camera",
         "com.sec.android.app.camera" to "com.sec.android.app.camera/.Camera",
-        "samsung.android.task.contacts" to "com.samsung.android.app.contacts/.ContactsListActivity",
     )
 
+    // v0.40.0: 联系人去掉硬编码（Activity 名可能不对），走 resolveActivity
     private val pkgAlias = mapOf(
         "samsung.android.task.contacts" to "com.samsung.android.app.contacts",
         "samsung.android.task.dialtacts" to "com.samsung.android.dialer",
@@ -82,7 +82,8 @@ class AppRedirectService : Service() {
                     if (coverActive) {
                         wasCoverActive = true
                         val now = System.currentTimeMillis()
-                        if (now - lastRedirectTime > 500) redirectAppsFromDisplay0()
+                        // v0.40.0: 冷却期缩短到 300ms（更跟手）
+                        if (now - lastRedirectTime > 300) redirectAppsFromDisplay0()
                     } else {
                         if (wasCoverActive) {
                             Timber.i("Phone opened, cleaning cover")
@@ -93,7 +94,7 @@ class AppRedirectService : Service() {
                         }
                     }
                 } catch (e: Exception) { Timber.e(e, "Polling error") }
-                delay(400)
+                delay(300)  // v0.40.0: 300ms 轮询（更跟手）
             }
         }
     }
