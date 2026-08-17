@@ -4,16 +4,17 @@ FlexUnlock Cover DeX 是面向三星折叠屏外屏的 LSPosed / Xposed 模块�
 
 ## 当前版本
 
-`1.4.5`
+`1.6.8`
 
-安装包请前往 [Releases](https://github.com/AndyNull/flexunlock/releases) 下载。
+安装包请前往 [Releases](https://github.com/AndyNull/flexunlock/releases) 下载。当前签名包为 `FlexUnlock-1.6.8-release.apk`。
 
 ## 主要功能
 
-- 在外屏启动和恢复原生 DeX 桌面及普通 App。
-- 可配置外屏 App 启动允许列表，支持搜索、系统/用户应用筛选。
+- 在外屏启动和恢复原生桌面及普通 App。
+- 可配置外屏 App 启动允许列表，支持搜索、系统/用户应用筛选，以及每个应用的全屏比例和弹窗尺寸。
 - 支持外屏四方向旋转、最近任务缩略图和底边手势方向同步。
-- 支持外屏快捷设置布局与磁贴编辑。
+- 支持外屏快捷设置与通知的左右分页、收起保持当前页，以及磁贴编辑。
+- 外屏可打开系统设置子页（含开发者选项、无线调试），不会被赶到内屏或直接关闭。
 - 支持外屏独立锁屏、息屏超时和亮屏恢复。
 - 在锁屏解锁后恢复原有 App task，避免重复创建 App 实例。
 - 提供模块控制中心、主题切换和 GitHub Release 更新检查。
@@ -26,10 +27,11 @@ FlexUnlock Cover DeX 是面向三星折叠屏外屏的 LSPosed / Xposed 模块�
 
 ## 安装
 
-1. 从 [Releases](https://github.com/AndyNull/flexunlock/releases) 下载 `FlexUnlock-Cover-DeX-1.4.5-debug-signed.apk`。
-2. 安装 APK，在 LSPosed 中启用模块并采用模块声明的作用域。
-3. 重启设备，使 `system_server`、SystemUI、Launcher 和相关三星组件加载新版本。
-4. 打开 FlexUnlock Cover DeX 控制页，配置外屏允许列表、磁贴布局和显示主题。
+1. 从 [Releases](https://github.com/AndyNull/flexunlock/releases) 下载 `FlexUnlock-1.6.8-release.apk`。
+2. 安装 APK；升级时可直接覆盖安装。
+3. 在 LSPosed 中启用模块并采用模块声明的作用域。
+4. 完整重启设备，使 `system_server`、SystemUI、Launcher 和相关三星组件加载新版本。仅重启 Launcher 或 SystemUI 不够。
+5. 打开 FlexUnlock Cover DeX 控制页，配置外屏允许列表、显示比例和界面主题。
 
 升级前建议保留现有可用版本。系统或 One UI 更新后，如遇异常，请先禁用模块确认是否为兼容性问题。
 
