@@ -2,7 +2,7 @@
 
 FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模块。它复用三星原生 `SecondaryLauncher`、SystemUI、通知、Quick Settings 和 Recents，在不替换系统核心界面的前提下补齐外屏应用启动、旋转、手势、锁屏与息屏能力。
 
-> 当前版本：`1.7.1`
+> 当前版本：`1.7.2`
 > 当前适配对象：Samsung Galaxy Z Flip5 `SM-F7310`、Android 14 及 One UI 8.5 测试固件。项目依赖三星私有实现，其他机型或系统版本需要重新验证。
 
 ## 主要功能
@@ -24,7 +24,7 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模
 - 锁屏页面使用独立 10 秒息屏策略。
 - 锁屏状态下，system-server 会在 display 1 的 Activity 启动许可边界拒绝普通外部 App，必须先完成解锁。
 - 电源键锁屏提交后立即进入 fail-closed 状态，快速再次唤醒只恢复 Keyguard，不恢复 SecondaryLauncher。
-- 解锁后仍按允许列表和原有外屏会话策略启动 App。
+- 解锁后从三星外屏桌面或应用抽屉启动的 App 直接路由到 display 1；其他入口仍按允许列表和外屏会话策略处理。
 - 更新检查展示 GitHub Release 的版本、发布时间和更新日志，并保留完整 Releases 页面入口。
 - 模块 App 使用 adaptive、round 和 themed icon，适配 Samsung Launcher 图标蒙版。
 - 输入法使用系统原生尺寸调节，不再注入会锁死二次调整的键盘尺寸 Hook。
@@ -101,8 +101,8 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模
 唯一版本源：
 
 ```properties
-VERSION_NAME=1.7.1
-VERSION_CODE=10701
+VERSION_NAME=1.7.2
+VERSION_CODE=10702
 ```
 
 `cover-shell`、保留的 `app` 模块和 `system-bridge` 都读取同一组值，禁止再单独写模块版本号。
@@ -181,9 +181,9 @@ python tools/verify_screenshot.py --image home.png --expect 控制中心 --json
 
 ## 发布内容
 
-`1.7.1` 发布包含：
+`1.7.2` 发布包含：
 
-- 一个经过发布证书签名的 APK：`FlexUnlock-1.7.1-release.apk`。
-- 简略更新日志与本使用指南。
+- 一个经过发布证书签名的 APK：`FlexUnlock-1.7.2-release.apk`。
+- 完整版本记录见 [CHANGELOG.md](CHANGELOG.md)，不再维护重复的更新文档。
 
 发布页：[https://github.com/AndyNull/flexunlock/releases](https://github.com/AndyNull/flexunlock/releases)
