@@ -16,6 +16,7 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模
 - App 启动首帧直接使用当前物理角度，避免先显示 0°再旋转。
 - QS 在物理旋转后同步 display 1 的 Configuration、Insets 和窗口布局。
 - 外屏左下异形区提供 RECENT / HOME / BACK 三分手势，并随实际底边旋转。
+- 普通抽屉沿用 Samsung 原生 cell 布局，避免打开完成后发生二次跳位；HOME 区域上滑返回普通桌面。
 - Recents snapshot、thumbnail 和 live surface 支持四方向及动态旋转。
 - 完整 DeX 最近任务支持卡片和纵向标题列表两种显示方式。
 - 完整 DeX 下普通应用统一绕过 CoverLauncher 的“展开手机”限制并路由到外屏。
