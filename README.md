@@ -2,7 +2,7 @@
 
 FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模块。它复用三星原生 `SecondaryLauncher`、SystemUI、通知、Quick Settings 和 Recents，在不替换系统核心界面的前提下补齐外屏应用启动、旋转、手势、锁屏与息屏能力。
 
-> 当前版本：`1.7.2`
+> 当前版本：`1.7.6.6`
 > 当前适配对象：Samsung Galaxy Z Flip5 `SM-F7310`、Android 14 及 One UI 8.5 测试固件。项目依赖三星私有实现，其他机型或系统版本需要重新验证。
 
 ## 主要功能
@@ -15,11 +15,15 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模
 - 外屏 App、Good Lock、Launcher 和 Recents 支持四方向传感器旋转。
 - App 启动首帧直接使用当前物理角度，避免先显示 0°再旋转。
 - QS 在物理旋转后同步 display 1 的 Configuration、Insets 和窗口布局。
+- 原始与完整外屏快捷设置中的手电筒均控制真实闪光灯，不再切换为屏幕补光。
 - 外屏左下异形区提供 RECENT / HOME / BACK 三分手势，并随实际底边旋转。
+- 完整模式 RECENT 手势直接调用三星原生最近任务入口，不再先返回桌面。
 - 普通抽屉沿用 Samsung 原生 cell 布局，避免打开完成后发生二次跳位；HOME 区域上滑返回普通桌面。
 - Recents snapshot、thumbnail 和 live surface 支持四方向及动态旋转。
 - 完整 DeX 最近任务支持卡片和纵向标题列表两种显示方式。
 - 完整 DeX 下普通应用统一绕过 CoverLauncher 的“展开手机”限制并路由到外屏。
+- 完整模式相机可在内屏适配布局与系统原始外屏布局之间切换；原始模式自动隐藏该选项。
+- 模块控制页的同组选项按可用宽度自动使用两列或三列布局。
 - 解锁态读取系统 `screen_off_timeout`，到期进入 Keyguard 并独立关闭外屏。
 - 锁屏页面使用独立 10 秒息屏策略。
 - 锁屏状态下，system-server 会在 display 1 的 Activity 启动许可边界拒绝普通外部 App，必须先完成解锁。
@@ -80,6 +84,7 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模
 - **超时到期**：先进入系统 Keyguard，再单独关闭外屏。
 - **锁屏态**：固定 10 秒后关闭外屏。
 - **重新唤醒**：清除 display 1 OFF 覆盖；若此前因系统超时锁定，会先显示锁屏页。
+- **完整切回原始**：等待 SystemUI 与 Launcher 恢复后再完成切换，锁屏和小组件不要求再次重启手机。
 - 该策略不会主动调用全局 `goToSleep`，避免连带关闭或改变 display 0 状态。
 
 ## 模块页面
@@ -101,8 +106,8 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5（`SM-F7310`）外屏的 LSPosed 模
 唯一版本源：
 
 ```properties
-VERSION_NAME=1.7.2
-VERSION_CODE=10702
+VERSION_NAME=1.7.6.6
+VERSION_CODE=107066
 ```
 
 `cover-shell`、保留的 `app` 模块和 `system-bridge` 都读取同一组值，禁止再单独写模块版本号。
@@ -113,15 +118,16 @@ VERSION_CODE=10702
 
 ```powershell
 & "C:\Users\andy\.gradle\wrapper\dists\gradle-8.9-bin\78qddjpeqn5v6yec3xb8kv9ca\gradle-8.9\bin\gradle.bat" `
-  :cover-shell:lintDebug `
-  :cover-shell:assembleDebug `
+  :cover-shell:testReleaseUnitTest `
+  :cover-shell:lintVitalRelease `
+  :cover-shell:assembleRelease `
   --no-daemon
 ```
 
 产物路径：
 
 ```text
-cover-shell/build/outputs/apk/debug/cover-shell-debug.apk
+cover-shell/build/outputs/apk/release/cover-shell-release.apk
 ```
 
 实际发布构建入口是 `cover-shell`。它通过 source set 编入 `system-bridge` 源码；`settings.gradle.kts` 不单独构建历史 `app` 和 `system-bridge` APK。
@@ -181,9 +187,9 @@ python tools/verify_screenshot.py --image home.png --expect 控制中心 --json
 
 ## 发布内容
 
-`1.7.2` 发布包含：
+`1.7.6.6` 发布包含：
 
-- 一个经过发布证书签名的 APK：`FlexUnlock-1.7.2-release.apk`。
+- 一个经过发布证书签名的 APK：`FlexUnlock-1.7.6.6-release.apk`。
 - 完整版本记录见 [CHANGELOG.md](CHANGELOG.md)，不再维护重复的更新文档。
 
 发布页：[https://github.com/AndyNull/flexunlock/releases](https://github.com/AndyNull/flexunlock/releases)
