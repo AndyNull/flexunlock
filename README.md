@@ -21,8 +21,6 @@ FlexUnlock 是用于 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 - 支持视频、导航等应用保持屏幕常亮。
 - 支持完整模式相机布局切换。
 - 支持停止和恢复三星系统更新。
-- 内置街猫公益项目入口。
-- 支持浅色、深色主题和应用内检查更新。
 
 版本变化见 [CHANGELOG.md](CHANGELOG.md)。
 
