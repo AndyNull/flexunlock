@@ -2,7 +2,7 @@
 
 FlexUnlock 是用于 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 
-> 当前版本：`1.7.7.2`
+> 当前版本：`1.7.7.4`
 >
 > 当前适配：Samsung Galaxy Z Flip5 `SM-F7310`、Android 14、One UI 8.5 测试固件。
 
@@ -21,6 +21,8 @@ FlexUnlock 是用于 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 - 支持视频、导航等应用保持屏幕常亮。
 - 支持完整模式相机布局切换。
 - 支持停止和恢复三星系统更新。
+- 内置街猫公益项目入口。
+- 支持浅色、深色主题和应用内检查更新。
 
 版本变化见 [CHANGELOG.md](CHANGELOG.md)。
 
@@ -89,6 +91,6 @@ cover-shell/build/outputs/apk/release/cover-shell-release.apk
 
 ## 发布内容
 
-GitHub Release 只提供签名 APK：`FlexUnlock-1.7.7.2-release.apk`。
+GitHub Release 只提供签名 APK：`FlexUnlock-1.7.7.4-release.apk`。
 
 [前往 GitHub Releases](https://github.com/AndyNull/flexunlock/releases)
