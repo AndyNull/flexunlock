@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xposed_scope">
+        <item>android</item>
+        <item>system</item>
+        <item>com.android.systemui</item>
+        <item>com.samsung.android.dialer</item>
+        <item>com.android.settings</item>
+        <item>com.samsung.android.sidegesturepad</item>
+        <item>com.samsung.android.honeyboard</item>
+        <item>com.tencent.wetype</item>
+        <item>com.sec.android.app.camera</item>
+        <item>com.sec.android.app.launcher</item>
+        <item>com.sec.android.app.desktoplauncher</item>
+        <item>com.sec.android.desktopmode.uiservice</item>
+        <item>com.samsung.android.goodlock</item>
+        <item>com.samsung.systemui.lockstar</item>
+        <item>com.samsung.android.app.dressroom</item>
+    </string-array>
+</resources>

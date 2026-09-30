@@ -1,0 +1,36 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+cover-shell/build/
+system-bridge/build/
+
+# Local machine config
+local.properties
+keystore.properties
+*.jks
+*.keystore
+*.p12
+
+# IDE
+.idea/
+*.iml
+
+# Generated artifacts
+*.apk
+*.ap_
+*.dex
+*.source.zip
+*-source.zip
+hs_err_pid*.log
+.gradle-tmp/
+SamsungCamera/
+!releases/
+!releases/*.apk
+
+# OS
+.DS_Store
+Thumbs.db.kotlin/
+@
+.kotlin/
+
