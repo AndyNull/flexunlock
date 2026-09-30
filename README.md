@@ -30,9 +30,9 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 
 ## 安装要求
 
-1. Samsung Galaxy Z Flip5 `SM-F7310` 或兼容三星设备。
-2. Android 14 或兼容 One UI 固件。
-3. Magisk、Zygisk 和 LSPosed 已安装并启用。
+1. Samsung Galaxy Z Flip5 或 Z Flip6。
+2. One UI 8.5 固件。
+3. 已 root，并安装 Zygisk 和 LSPosed。
 4. 在 LSPosed 中启用 FlexUnlock，并配置正确作用域。
 
 ## 安装方法

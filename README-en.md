@@ -30,9 +30,9 @@ Demo video: [Bilibili](https://www.bilibili.com/video/BV1Lxaf6GE25/)
 
 ## Requirements
 
-1. Samsung Galaxy Z Flip5 `SM-F7310` or a compatible Samsung device.
-2. Android 14 or a compatible One UI firmware.
-3. Magisk, Zygisk, and LSPosed installed and enabled.
+1. Samsung Galaxy Z Flip5 or Z Flip6.
+2. One UI 8.5 firmware.
+3. Root access with Zygisk and LSPosed installed.
 4. FlexUnlock enabled in LSPosed with the required scope.
 
 ## Installation
