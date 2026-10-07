@@ -1,10 +1,10 @@
-# FlexUnlock
+# FlexUnlock	中文/[English](https://github.com/AndyNull/flexunlock/blob/main/README-en.md)
 
-FlexUnlock 是面向 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
+FlexUnlock 是面向 Samsung Galaxy Z Flip5/Flip6 外屏的 LSPosed 模块。
 
 > 当前版本：`1.8.20`
 >
-> 主要适配：Samsung Galaxy Z Flip5 、Android 14、One UI 8.5 测试固件。
+> 主要适配：Samsung Galaxy Z Flip5/Flip6 、One UI 8.5 测试固件。
 
 ## 主要功能
 
@@ -27,6 +27,9 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 - 浅色、深色和跟随系统主题，以及应用内更新检查。
 - 默认简体中文；主页语言卡片可切换英文，退出应用后保留语言选择。
 
+## 更新日志
+  [查看详情](https://github.com/AndyNull/flexunlock/blob/main/CHANGELOG.md)
+  
 ## 安装要求
 
 1. Samsung Galaxy Z Flip5 或 Z Flip6等
