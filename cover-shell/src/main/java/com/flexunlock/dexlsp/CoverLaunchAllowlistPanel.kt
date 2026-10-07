@@ -36,6 +36,8 @@ internal class CoverLaunchAllowlistPanel(
     private val palette: ModuleUiPalette,
     private val onSaved: () -> Unit
 ) : FrameLayout(context) {
+    private fun getString(id: Int, vararg args: Any): String =
+        if (args.isEmpty()) context.getString(id) else context.getString(id, *args)
     private val selectedPackages = linkedSetOf<String>()
     private val displayProfiles = linkedMapOf<String, AppDisplayProfile>()
     private var packageCatalog: List<SelectablePackage> = emptyList()
@@ -66,7 +68,7 @@ internal class CoverLaunchAllowlistPanel(
             renderPackages()
         } else {
             resultSummary.visibility = View.VISIBLE
-            resultSummary.text = "正在加载应用列表…"
+            resultSummary.text = getString(R.string.ui_235)
             reloadPackages(force = false, fromUser = false)
         }
     }
@@ -79,13 +81,13 @@ internal class CoverLaunchAllowlistPanel(
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 addView(TextView(context).apply {
-                    text = "应用管理与缩放"
+                    text = getString(R.string.ui_002)
                     textSize = 19f
                     setTextColor(palette.text)
                     setTypeface(typeface, android.graphics.Typeface.BOLD)
                 }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 addView(Button(context).apply {
-                    text = "全局大小"
+                    text = getString(R.string.ui_236)
                     textSize = 10f
                     isAllCaps = false
                     minHeight = 0
@@ -99,14 +101,14 @@ internal class CoverLaunchAllowlistPanel(
                     background = roundedBackground(palette.surface, palette.outline, 10)
                     setPadding(dp(7), 0, dp(7), 0)
                     setOnClickListener { showGlobalDisplayProfileDialog() }
-                }, LinearLayout.LayoutParams(dp(64), dp(30)).apply {
+                }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(30)).apply {
                     marginEnd = dp(6)
                 })
                 addView(FrameLayout(context).apply {
                     background = roundedBackground(palette.surface, palette.outline, 10)
                     isClickable = true
                     isFocusable = true
-                    contentDescription = "刷新应用列表"
+                    contentDescription = getString(R.string.ui_237)
                     addView(ImageView(context).apply {
                         refreshIcon = this
                         setImageResource(R.drawable.ic_refresh)
@@ -133,7 +135,7 @@ internal class CoverLaunchAllowlistPanel(
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 val search = EditText(context).apply {
-                    hint = "搜索应用或包名"
+                    hint = getString(R.string.ui_238)
                     setSingleLine(true)
                     textSize = 12f
                     setTextColor(palette.text)
@@ -151,7 +153,7 @@ internal class CoverLaunchAllowlistPanel(
                 }
                 addView(search, LinearLayout.LayoutParams(0, dp(38), 1f))
                 addView(Button(context).apply {
-                    text = "筛选"
+                    text = getString(R.string.ui_239)
                     textSize = 11f
                     isAllCaps = false
                     minHeight = 0
@@ -186,11 +188,11 @@ internal class CoverLaunchAllowlistPanel(
             ))
             val actions = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                addView(actionButton("取消全部", false) {
+                addView(actionButton(getString(R.string.ui_240), false) {
                     selectedPackages.clear()
                     renderPackages()
                 }, LinearLayout.LayoutParams(0, dp(42), 1f))
-                addView(actionButton("保存", true) {
+                addView(actionButton(getString(R.string.ui_241), true) {
                     save()
                 }, LinearLayout.LayoutParams(0, dp(42), 1f).apply {
                     marginStart = dp(7)
@@ -207,7 +209,7 @@ internal class CoverLaunchAllowlistPanel(
         if (fromUser) {
             refreshing = true
             resultSummary.visibility = View.VISIBLE
-            resultSummary.text = "正在刷新应用列表…"
+            resultSummary.text = getString(R.string.ui_242)
             refreshIcon?.isEnabled = true
             refreshIcon?.animate()?.cancel()
             refreshIcon?.rotation = 0f
@@ -224,11 +226,11 @@ internal class CoverLaunchAllowlistPanel(
                     packageCatalog = it
                     renderPackages()
                     if (fromUser) {
-                        Toast.makeText(context, "应用列表已更新", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.ui_243), Toast.LENGTH_SHORT).show()
                     }
                 }.onFailure {
                     resultSummary.visibility = View.VISIBLE
-                    resultSummary.text = "应用列表读取失败"
+                    resultSummary.text = getString(R.string.ui_244)
                 }
             }
         }
@@ -258,9 +260,9 @@ internal class CoverLaunchAllowlistPanel(
                 topOffset
             )
         }
-        resultSummary.text = if (showSelectedOnly) "显示 ${visible.size} 个已允许应用" else ""
+        resultSummary.text = if (showSelectedOnly) getString(R.string.ui_245, visible.size) else ""
         resultSummary.visibility = if (resultSummary.text.isNullOrEmpty()) View.GONE else View.VISIBLE
-        summary.text = "已允许 ${selectedPackages.size} 个应用 · 选择显示设置后保存，重新打开 App 生效"
+        summary.text = getString(R.string.ui_246, selectedPackages.size)
     }
 
     private fun updateSelection(packageName: String, selected: Boolean) {
@@ -339,11 +341,11 @@ internal class CoverLaunchAllowlistPanel(
             }
         }
 
-        val systemApps = filterToggle("系统应用", showSystemApps)
-        val userApps = filterToggle("用户安装应用", showUserApps)
-        val selectedOnly = filterToggle("仅显示已允许", showSelectedOnly)
-        val selectAll = filterToggle("全选当前范围", appTypeScopeFullySelected())
-        val invert = filterToggle("反选当前范围", false)
+        val systemApps = filterToggle(getString(R.string.ui_247), showSystemApps)
+        val userApps = filterToggle(getString(R.string.ui_248), showUserApps)
+        val selectedOnly = filterToggle(getString(R.string.ui_249), showSelectedOnly)
+        val selectAll = filterToggle(getString(R.string.ui_250), appTypeScopeFullySelected())
+        val invert = filterToggle(getString(R.string.ui_251), false)
         var syncingChecks = false
         var invertSelected = false
 
@@ -401,19 +403,19 @@ internal class CoverLaunchAllowlistPanel(
             background = roundedBackground(palette.surface, palette.outline, 15)
             setPadding(dp(12), dp(9), dp(12), dp(9))
             addView(TextView(context).apply {
-                text = "筛选与批量选择"
+                text = getString(R.string.ui_252)
                 textSize = 15f
                 setTextColor(palette.text)
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 setPadding(dp(2), 0, dp(2), dp(5))
             }, matchWrap())
-            addView(sectionLabel("显示应用"), matchWrap())
+            addView(sectionLabel(getString(R.string.ui_253)), matchWrap())
             addView(toggleGroup(systemApps, userApps, selectedOnly), matchWrap())
-            addView(sectionLabel("批量选择 · 仅按上述系统/用户范围生效").apply {
+            addView(sectionLabel(getString(R.string.ui_254)).apply {
                 setPadding(dp(3), dp(7), dp(3), dp(2))
             }, matchWrap())
             addView(toggleGroup(selectAll, invert), matchWrap())
-            addView(actionButton("完成", true) { dialog.dismiss() },
+            addView(actionButton(getString(R.string.ui_255), true) { dialog.dismiss() },
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34)).apply {
                     topMargin = dp(8)
                 })
@@ -457,7 +459,7 @@ internal class CoverLaunchAllowlistPanel(
     private fun showGlobalDisplayProfileDialog() {
         showDisplayProfileDialog(
             packageName = AppDisplayProfileConfig.GLOBAL_PROFILE_PACKAGE_NAME,
-            label = "全局默认",
+            label = getString(R.string.ui_256),
             isGlobal = true
         )
     }
@@ -474,9 +476,9 @@ internal class CoverLaunchAllowlistPanel(
         }
         panel.addView(TextView(context).apply {
             text = if (isGlobal) {
-                "对外屏用户应用生效；单独显示设置优先。"
+                getString(R.string.ui_257)
             } else {
-                "单独设置优先于全局默认；保存后重新打开 App 生效。"
+                getString(R.string.ui_258)
             }
             setTextColor(palette.secondaryText)
             textSize = 11f
@@ -489,7 +491,7 @@ internal class CoverLaunchAllowlistPanel(
         }
         val fullscreen = RadioButton(context).apply {
             id = View.generateViewId()
-            text = "全屏"
+            text = getString(R.string.ui_259)
             buttonTintList = ColorStateList.valueOf(palette.primary)
             setTextColor(palette.text)
             minHeight = 0
@@ -497,7 +499,7 @@ internal class CoverLaunchAllowlistPanel(
         }
         val popup = RadioButton(context).apply {
             id = View.generateViewId()
-            text = "弹窗"
+            text = getString(R.string.ui_260)
             buttonTintList = ColorStateList.valueOf(palette.primary)
             setTextColor(palette.text)
             minHeight = 0
@@ -533,28 +535,28 @@ internal class CoverLaunchAllowlistPanel(
             return Triple(titleView, value, bar)
         }
         val (fullscreenTitle, fullscreenValue, fullscreenBar) = control(
-            "全屏显示比例",
+            getString(R.string.ui_261),
             current?.fullscreenPercent ?: 100,
             AppDisplayProfileConfig.FULLSCREEN_MIN_PERCENT,
             AppDisplayProfileConfig.FULLSCREEN_MAX_PERCENT
         )
         val (widthTitle, widthValue, widthBar) = control(
-            "弹窗宽度",
+            getString(R.string.ui_262),
             current?.popupWidthPercent ?: 82,
             AppDisplayProfileConfig.POPUP_MIN_PERCENT,
             AppDisplayProfileConfig.POPUP_MAX_PERCENT
         )
         val (heightTitle, heightValue, heightBar) = control(
-            "弹窗高度",
+            getString(R.string.ui_263),
             current?.popupHeightPercent ?: 76,
             AppDisplayProfileConfig.POPUP_MIN_PERCENT,
             AppDisplayProfileConfig.POPUP_MAX_PERCENT
         )
         fun percent(bar: SeekBar, min: Int) = min + bar.progress * AppDisplayProfileConfig.PERCENT_STEP
         fun refresh() {
-            fullscreenValue.text = "${percent(fullscreenBar, AppDisplayProfileConfig.FULLSCREEN_MIN_PERCENT)}% · 小于 100% 显示更多内容"
-            widthValue.text = "${percent(widthBar, 50)}% · 外屏安全区域宽度"
-            heightValue.text = "${percent(heightBar, 50)}% · 外屏安全区域高度"
+            fullscreenValue.text = getString(R.string.ui_264, percent(fullscreenBar, AppDisplayProfileConfig.FULLSCREEN_MIN_PERCENT))
+            widthValue.text = getString(R.string.ui_265, percent(widthBar, 50))
+            heightValue.text = getString(R.string.ui_266, percent(heightBar, 50))
         }
         val listener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) = refresh()
@@ -587,7 +589,7 @@ internal class CoverLaunchAllowlistPanel(
             background = roundedBackground(palette.surface, palette.outline, 16)
             setPadding(dp(14), dp(12), dp(14), dp(10))
             addView(TextView(context).apply {
-                text = "$label · 显示设置"
+                text = getString(R.string.ui_267, label)
                 textSize = 16f
                 setTextColor(palette.text)
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
@@ -598,9 +600,9 @@ internal class CoverLaunchAllowlistPanel(
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.END
                 setPadding(0, dp(4), 0, 0)
-                addView(actionButton("取消", false) { dialog.dismiss() },
+                addView(actionButton(getString(R.string.ui_215), false) { dialog.dismiss() },
                     LinearLayout.LayoutParams(0, dp(36), 1f))
-                addView(actionButton("保存", true) {
+                addView(actionButton(getString(R.string.ui_241), true) {
                     val profile = if (mode.checkedRadioButtonId == popup.id) {
                         AppDisplayProfile(
                             packageName,
@@ -675,7 +677,7 @@ internal class CoverLaunchAllowlistPanel(
         renderPackages()
         Toast.makeText(
             context,
-            if (isGlobal) "全局默认已保存，重新打开应用生效" else "已保存，重新打开该应用生效",
+            if (isGlobal) getString(R.string.ui_268) else getString(R.string.ui_269),
             Toast.LENGTH_SHORT
         ).show()
     }
@@ -688,7 +690,7 @@ internal class CoverLaunchAllowlistPanel(
         }
         CoverLaunchConfig.requestUpdate(context, normalized)
         AppDisplayProfileConfig.requestUpdate(context, profiles)
-        Toast.makeText(context, "设置已保存，重新打开应用生效", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, getString(R.string.ui_270), Toast.LENGTH_SHORT).show()
         onSaved()
     }
 

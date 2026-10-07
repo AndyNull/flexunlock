@@ -1,12 +1,10 @@
-# FlexUnlock   中文/[English](https://github.com/AndyNull/flexunlock/blob/main/README-en.md)
+# FlexUnlock
 
 FlexUnlock 是面向 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 
-> 当前版本：`1.8.18`
+> 当前版本：`1.8.20`
 >
-> 主要适配：Samsung Galaxy Z Flip5 `SM-F7310`、Android 14、One UI 8.x 测试固件。
-
-演示视频：[哔哩哔哩视频](https://www.bilibili.com/video/BV1Lxaf6GE25/)
+> 主要适配：Samsung Galaxy Z Flip5 、Android 14、One UI 8.5 测试固件。
 
 ## 主要功能
 
@@ -27,15 +25,13 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5 外屏的 LSPosed 模块。
 - 停止和恢复三星系统更新。
 - 关于页反馈与诊断日志：精简/全量采集、大小上限、分享和删除。
 - 浅色、深色和跟随系统主题，以及应用内更新检查。
-
-## 更新日志
-  [查看详情](https://github.com/AndyNull/flexunlock/blob/main/CHANGELOG.md)
+- 默认简体中文；主页语言卡片可切换英文，退出应用后保留语言选择。
 
 ## 安装要求
 
-1. Samsung Galaxy Z Flip5 或 Z Flip6。
+1. Samsung Galaxy Z Flip5 或 Z Flip6等
 2. One UI 8.5 固件。
-3. 已 root，并安装 Zygisk 和 LSPosed。
+3. Magisk、Zygisk 和 LSPosed 已安装并启用。
 4. 在 LSPosed 中启用 FlexUnlock，并配置正确作用域。
 
 ## 安装方法

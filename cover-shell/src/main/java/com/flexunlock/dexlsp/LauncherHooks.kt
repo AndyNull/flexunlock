@@ -1137,7 +1137,10 @@ private var coverRecentsStageManager: Any? = null
                             val container = param.thisObject as? ViewGroup ?: return
                             if (!fullDexCoverEnabled(container.context)) return
                             bindFullDexVerticalContainerLayout(container)
-                            container.post { applyFullDexVerticalContainerLayout(container) }
+                            container.post {
+                                (container.rootView as? ViewGroup)?.let(::applyFullDexOverlayAppsLayout)
+                                applyFullDexVerticalContainerLayout(container)
+                            }
                         }
                     }
                 )
@@ -1262,6 +1265,28 @@ private var coverRecentsStageManager: Any? = null
         val container = findViewByEntryName(root, "vertical_applist_container") as? ViewGroup
             ?: return
         bindFullDexVerticalContainerLayout(container)
+        val viewport = root.rootView
+        if (root.isAttachedToWindow && root.display?.rotation == android.view.Surface.ROTATION_0 &&
+            viewport.width > 0 && viewport.height > 0
+        ) {
+            val navigationInset = root.rootWindowInsets?.getInsetsIgnoringVisibility(
+                WindowInsets.Type.navigationBars()
+            )?.bottom ?: 0
+            val width = viewport.width
+            val height = (viewport.height - navigationInset).coerceAtLeast(1)
+            for (view in listOf(overlayList, container)) {
+                val params = view.layoutParams ?: continue
+                if (params.width != width || params.height != height) {
+                    params.width = width
+                    params.height = height
+                    view.layoutParams = params
+                }
+            }
+            if (overlayList.isShown) {
+                overlayList.x = 0f
+                overlayList.y = 0f
+            }
+        }
         if (overlayList.height > 0) applyFullDexVerticalContainerLayout(container)
     }
 
@@ -1272,12 +1297,16 @@ private var coverRecentsStageManager: Any? = null
             layoutFullDexVerticalContainer(view as ViewGroup)
         }
         container.postDelayed({
+            (container.rootView as? ViewGroup)?.let(::applyFullDexOverlayAppsLayout)
             layoutFullDexVerticalContainer(container)
             findViewByEntryName(container, "vertical_applist_recycler_view")?.let { list ->
                 runCatching { XposedHelpers.callMethod(list, "scrollToPosition", 0) }
             }
         }, 160L)
-        container.postDelayed({ layoutFullDexVerticalContainer(container) }, 320L)
+        container.postDelayed({
+            (container.rootView as? ViewGroup)?.let(::applyFullDexOverlayAppsLayout)
+            layoutFullDexVerticalContainer(container)
+        }, 320L)
         container.postDelayed({
             layoutFullDexVerticalContainer(container)
             val list = findViewByEntryName(container, "vertical_applist_recycler_view")
@@ -1311,6 +1340,19 @@ private var coverRecentsStageManager: Any? = null
         if (!list.javaClass.name.endsWith("VerticalApplistRecyclerView")) return
         val workTab = findViewByEntryName(container, "vertical_apps_change_page_mode_button")
             ?: return
+        if (container.display?.rotation == android.view.Surface.ROTATION_0) {
+            val availableWidth = container.width.coerceAtLeast(1)
+            val searchTop = findViewByEntryName(container.rootView, "overlay_apps_search_bar_container")
+                ?.top ?: container.height
+            val availableHeight = (searchTop - list.top).coerceAtLeast(1)
+            list.layoutParams?.let { params ->
+                if (params.width != availableWidth || params.height != availableHeight) {
+                    params.width = availableWidth
+                    params.height = availableHeight
+                    list.layoutParams = params
+                }
+            }
+        }
         fullDexWorkTabBaselines.getOrPut(workTab) {
             FullDexWorkTabBaseline(workTab.visibility, workTab.alpha)
         }
@@ -1490,6 +1532,7 @@ private var coverRecentsStageManager: Any? = null
         AndroidAppHelper.currentApplication()?.let { application ->
             registerCoverWorkspaceStateRequestReceiver(application)
             registerFullDexChangeReceiver(application)
+            registerCoverIconSizeReceiver(application)
         }
         runCatching {
             XposedHelpers.findAndHookMethod(
@@ -1503,6 +1546,7 @@ private var coverRecentsStageManager: Any? = null
                             context.applicationContext ?: context
                         )
                         registerFullDexChangeReceiver(context.applicationContext ?: context)
+                        registerCoverIconSizeReceiver(context.applicationContext ?: context)
                     }
                 }
             )
@@ -1870,6 +1914,12 @@ private var coverRecentsStageManager: Any? = null
                         secondaryLauncherFocused = activity.hasWindowFocus()
                         if (fullDexActive()) {
                             applyFullDexStatusBar(activity, true)
+                            activity.window.decorView.post {
+                                if (activity.isFinishing || activity.isDestroyed) return@post
+                                refreshFullDexTaskbarState(true)
+                                refreshFullDexDrawerState(true)
+                                activity.window.decorView.requestLayout()
+                            }
                             // Native DeX owns the workspace, drawer and taskbar state.
                             // Do not reconcile it through the compact cover launcher path.
                             return
@@ -1905,6 +1955,9 @@ private var coverRecentsStageManager: Any? = null
                         if (resumedSecondaryLauncher.get() !== activity) return
                         if (fullDexActive()) {
                             applyFullDexStatusBar(activity, true)
+                            if (param.args.firstOrNull() == true) {
+                                refreshFullDexTaskbarState(true)
+                            }
                             return
                         }
                         secondaryLauncherFocused = param.args.firstOrNull() == true
@@ -2310,9 +2363,9 @@ private var coverRecentsStageManager: Any? = null
     }
 
     private fun registerCoverIconSizeReceiver(context: Context) {
+        if (!coverIconSizeReceiverInstalled.compareAndSet(false, true)) return
         configuredCoverHomeIconSizePx = coverIconSizePx(context, COVER_ICON_SURFACE_HOME)
         configuredCoverDrawerIconSizePx = coverIconSizePx(context, COVER_ICON_SURFACE_DRAWER)
-        if (!coverIconSizeReceiverInstalled.compareAndSet(false, true)) return
         runCatching {
             context.registerReceiver(
                 object : BroadcastReceiver() {
@@ -7711,6 +7764,17 @@ private var coverRecentsStageManager: Any? = null
 
     private fun coverHomeIconSizePx(view: View): Int {
         val textView = view as? TextView ?: return configuredCoverHomeIconSizePx
+        if (CoverQsModeConfig.readTransaction(view.context).isStableOriginal &&
+            view.width > 0 && view.height > 0
+        ) {
+            return coverHomeIconSizeForCellPx(
+                configuredCoverHomeIconSizePx,
+                minOf(
+                    view.width - view.paddingLeft - view.paddingRight,
+                    view.height - view.paddingTop - view.paddingBottom
+                )
+            )
+        }
         val labelPaint = TextPaint().apply {
             isAntiAlias = true
             textSize = textView.textSize

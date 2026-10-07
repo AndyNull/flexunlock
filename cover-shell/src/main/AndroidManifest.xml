@@ -35,7 +35,7 @@
             android:name=".CoverDexControlActivity"
             android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
-            android:label="外屏 DeX 切换"
+            android:label="@string/activity_title"
             android:resizeableActivity="true"
             android:screenOrientation="unspecified">
             <intent-filter>
@@ -50,7 +50,7 @@
             android:foregroundServiceType="dataSync" />
 
         <meta-data android:name="xposedmodule" android:value="true" />
-        <meta-data android:name="xposeddescription" android:value="外屏 DeX、原生导航与 system_server 显示策略" />
+        <meta-data android:name="xposeddescription" android:resource="@string/module_description" />
         <meta-data android:name="xposedminversion" android:value="82" />
         <meta-data android:name="xposedscope" android:resource="@array/xposed_scope" />
     </application>

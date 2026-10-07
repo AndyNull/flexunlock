@@ -1,0 +1,295 @@
+<resources>
+    <string name="ui_000" formatted="false">Control Center</string>
+    <string name="ui_001" formatted="false">Home</string>
+    <string name="ui_002" formatted="false">Apps &amp; Scaling</string>
+    <string name="ui_003" formatted="false">Apps</string>
+    <string name="ui_004" formatted="false">Tile Settings</string>
+    <string name="ui_005" formatted="false">Tiles</string>
+    <string name="ui_006" formatted="false">Cover Controls</string>
+    <string name="ui_007" formatted="false">Controls</string>
+    <string name="ui_008" formatted="false">Appearance</string>
+    <string name="ui_009" formatted="false">Theme</string>
+    <string name="ui_010" formatted="false">Charity</string>
+    <string name="ui_011" formatted="false">Charity</string>
+    <string name="ui_012" formatted="false">About FlexUnlock</string>
+    <string name="ui_013" formatted="false">About</string>
+    <string name="ui_014" formatted="false">Expand sidebar</string>
+    <string name="ui_015" formatted="false">Collapse sidebar</string>
+    <string name="ui_016" formatted="false">Cover display status</string>
+    <string name="ui_017" formatted="false">Waiting for cover display status from system_server.</string>
+    <string name="ui_018" formatted="false">Cover settings</string>
+    <string name="ui_019" formatted="false">App display</string>
+    <string name="ui_020" formatted="false">Per-app display settings</string>
+    <string name="ui_021" formatted="false">Manage cover apps and set fullscreen scale or popup width and height for each app.</string>
+    <string name="ui_022" formatted="false">App scaling</string>
+    <string name="ui_023" formatted="false">Saved. Reopen the app to apply.</string>
+    <string name="ui_024">%1$s · Current</string>
+    <string name="ui_025">Quick Settings already uses %1$s</string>
+    <string name="ui_026" formatted="false">Cover session</string>
+    <string name="ui_027" formatted="false">Start DeX</string>
+    <string name="ui_028" formatted="false">Exit DeX</string>
+    <string name="ui_029" formatted="false">Home screen display</string>
+    <string name="ui_030" formatted="false">Top status bar</string>
+    <string name="ui_031" formatted="false">Cover home screen only: hidden</string>
+    <string name="ui_032" formatted="false">Cover home screen only: visible</string>
+    <string name="ui_033" formatted="false">Hide status bar · On</string>
+    <string name="ui_034" formatted="false">Hide status bar · Off</string>
+    <string name="ui_035" formatted="false">Icon size</string>
+    <string name="ui_036" formatted="false">Home screen &amp; app drawer</string>
+    <string name="ui_037" formatted="false">Set separate icon size limits. Icons shrink to fit available space; folders follow automatically.</string>
+    <string name="ui_038" formatted="false">Home screen icons</string>
+    <string name="ui_039" formatted="false">App drawer icons</string>
+    <string name="ui_040" formatted="false">Cover lock screen timeout</string>
+    <string name="ui_041" formatted="false">30 seconds</string>
+    <string name="ui_042" formatted="false">1 minute</string>
+    <string name="ui_043" formatted="false">2 minutes</string>
+    <string name="ui_044" formatted="false">33 minutes</string>
+    <string name="ui_045" formatted="false">5 minutes</string>
+    <string name="ui_046" formatted="false">10 minutes</string>
+    <string name="ui_047" formatted="false">30 minutes</string>
+    <string name="ui_048">Cover lock screen timeout set to %1$s</string>
+    <string name="ui_049" formatted="false">Lock screen timeout was not applied. Check that the module is loaded.</string>
+    <string name="ui_050" formatted="false">System updates</string>
+    <string name="ui_051" formatted="false">Block Samsung system updates</string>
+    <string name="ui_052" formatted="false">Blocks system OTA checks and downloads only. Galaxy Store and Play Store app updates are unaffected.</string>
+    <string name="ui_053" formatted="false">System updates · Blocked</string>
+    <string name="ui_054" formatted="false">System updates · Allowed</string>
+    <string name="ui_055" formatted="false">Cover keyboard layout</string>
+    <string name="ui_056">Compact keyboard · %1$d%%</string>
+    <string name="ui_057" formatted="false">Full-height keyboard</string>
+    <string name="ui_058" formatted="false">Reduce keyboard height to leave more room for input fields.</string>
+    <string name="ui_059" formatted="false">Restore the original full-height keyboard layout.</string>
+    <string name="ui_060" formatted="false">Use full-height keyboard</string>
+    <string name="ui_061" formatted="false">Use compact keyboard</string>
+    <string name="ui_062" formatted="false">Switched to compact keyboard</string>
+    <string name="ui_063" formatted="false">Switched to full-height keyboard</string>
+    <string name="ui_064" formatted="false">Keyboard layout was not applied. Check that the module is loaded.</string>
+    <string name="ui_065">Compact keyboard height set to %1$d%%</string>
+    <string name="ui_066" formatted="false">Compact keyboard height was not applied. Check that the module is loaded.</string>
+    <string name="ui_067" formatted="false">Compact keyboard height</string>
+    <string name="ui_068" formatted="false">Samsung system updates blocked</string>
+    <string name="ui_069" formatted="false">Samsung system updates restored</string>
+    <string name="ui_070" formatted="false">System update setting failed. Check that the module is loaded.</string>
+    <string name="ui_071" formatted="false">Cover display mode</string>
+    <string name="ui_072" formatted="false">Full DeX desktop</string>
+    <string name="ui_073" formatted="false">Original cover Quick Settings</string>
+    <string name="ui_074" formatted="false">Full main-screen Quick Settings</string>
+    <string name="ui_075" formatted="false">Switching to full mode</string>
+    <string name="ui_076" formatted="false">Restoring original mode</string>
+    <string name="ui_077" formatted="false">Rolling back an incomplete switch</string>
+    <string name="ui_078" formatted="false">Current mode</string>
+    <string name="ui_079" formatted="false">Original QS</string>
+    <string name="ui_080" formatted="false">Full QS</string>
+    <string name="ui_081" formatted="false">Full DeX</string>
+    <string name="ui_082" formatted="false">Hide cutout area</string>
+    <string name="ui_083" formatted="false">Hide cutout area · On</string>
+    <string name="ui_084" formatted="false">Hide cutout area · Off</string>
+    <string name="ui_085" formatted="false">Cutout area hidden</string>
+    <string name="ui_086" formatted="false">Cutout area restored</string>
+    <string name="ui_087" formatted="false">Cutout setting failed. Check that the module is loaded.</string>
+    <string name="ui_088" formatted="false">Full-mode camera</string>
+    <string name="ui_089" formatted="false">Camera layout</string>
+    <string name="ui_090" formatted="false">Use the main-screen camera layout adapted to the full cover canvas</string>
+    <string name="ui_091" formatted="false">Use the original system cover camera layout</string>
+    <string name="ui_092" formatted="false">Main-screen layout</string>
+    <string name="ui_093" formatted="false">Cover layout</string>
+    <string name="ui_094">%1$s · Current</string>
+    <string name="ui_095" formatted="false">main-screen camera layout</string>
+    <string name="ui_096" formatted="false">original cover camera</string>
+    <string name="ui_097">Switched to %1$s</string>
+    <string name="ui_098" formatted="false">Camera layout was not applied. Restart the device to load the updated module.</string>
+    <string name="ui_099" formatted="false">original</string>
+    <string name="ui_100" formatted="false">full</string>
+    <string name="ui_101">Quick Settings switched to %1$s</string>
+    <string name="ui_102" formatted="false">Quick Settings mode was not applied. The original display channel was retained or restored.</string>
+    <string name="ui_103" formatted="false">Display parameters</string>
+    <string name="ui_104" formatted="false">Cover display unavailable</string>
+    <string name="ui_105" formatted="false">Resolution and DPI can be changed once the cover display is detected.</string>
+    <string name="ui_106" formatted="false">Current output</string>
+    <string name="ui_107" formatted="false">Width</string>
+    <string name="ui_108" formatted="false">Height</string>
+    <string name="ui_109" formatted="false">Custom</string>
+    <string name="ui_110">Original · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_111">Large text · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_112">External · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_113">1080P proportional · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_114" formatted="false">Resolution or DPI is out of range</string>
+    <string name="ui_115" formatted="false">Full-mode resolution must remain approximately square</string>
+    <string name="ui_116" formatted="false">Resolution must preserve the cover display\'s native aspect ratio</string>
+    <string name="ui_117" formatted="false">Applied</string>
+    <string name="ui_118" formatted="false">Restore defaults</string>
+    <string name="ui_119" formatted="false">Defaults restored</string>
+    <string name="ui_120" formatted="false">Display parameters were not applied. Check that the module is loaded.</string>
+    <string name="ui_121" formatted="false">External resolution</string>
+    <string name="ui_122" formatted="false">System default · Current</string>
+    <string name="ui_123" formatted="false">System default</string>
+    <string name="ui_124" formatted="false">" · Current"</string>
+    <string name="ui_125">External resolution set to %1$d×%2$d</string>
+    <string name="ui_126" formatted="false">External resolution restored to system default</string>
+    <string name="ui_127" formatted="false">External refresh rate</string>
+    <string name="ui_128">External refresh rate set to %1$s Hz</string>
+    <string name="ui_129" formatted="false">External refresh rate restored to system default</string>
+    <string name="ui_130">External display set to %1$d×%2$d · %3$s Hz</string>
+    <string name="ui_131" formatted="false">External display restored to the system default output mode</string>
+    <string name="ui_132" formatted="false">External display output mode was not applied</string>
+    <string name="ui_133" formatted="false">Full cover DeX enabled</string>
+    <string name="ui_134" formatted="false">Full cover DeX disabled</string>
+    <string name="ui_135" formatted="false">Desktop mode was not applied. Check that the module is loaded.</string>
+    <string name="ui_136" formatted="false">Cover display selection</string>
+    <string name="ui_137" formatted="false">Reading cover display status</string>
+    <string name="ui_138" formatted="false">system_server identifies the cover display. The app does not guess which display to use.</string>
+    <string name="ui_139" formatted="false">Refresh cover status</string>
+    <string name="ui_140" formatted="false">Automatic detection</string>
+    <string name="ui_141" formatted="false">Manual selection</string>
+    <string name="ui_142">Current mode · %1$s</string>
+    <string name="ui_143" formatted="false">Trusted candidates</string>
+    <string name="ui_144" formatted="false">No cover displays available</string>
+    <string name="ui_145" formatted="false">No trusted built-in or wired display was found.</string>
+    <string name="ui_146" formatted="false">" · Manually selected"</string>
+    <string name="ui_147">Manually select %1$s</string>
+    <string name="ui_148" formatted="false">This display is already selected manually</string>
+    <string name="ui_149" formatted="false">Restore automatic detection</string>
+    <string name="ui_150" formatted="false">Refresh candidates</string>
+    <string name="ui_151">Applying %1$s…</string>
+    <string name="ui_152">%1$s applied</string>
+    <string name="ui_153">%1$s was not applied. Check that the module is loaded and try again.</string>
+    <string name="ui_154" formatted="false">Refreshing cover display status…</string>
+    <string name="ui_155" formatted="false">Cover display status refreshed</string>
+    <string name="ui_156" formatted="false">No response from system_server. Check that the module is loaded.</string>
+    <string name="ui_157" formatted="false">Automatic</string>
+    <string name="ui_158" formatted="false">Manual</string>
+    <string name="ui_159" formatted="false">Built-in cover display</string>
+    <string name="ui_160" formatted="false">Automatically selected</string>
+    <string name="ui_161" formatted="false">Manually selected</string>
+    <string name="ui_162" formatted="false">Manual target unavailable; using automatic selection</string>
+    <string name="ui_163" formatted="false">Multiple equally trusted candidates; no display selected for safety</string>
+    <string name="ui_164" formatted="false">Display service is not ready; keeping native behavior</string>
+    <string name="ui_165" formatted="false">No trusted cover display; keeping native behavior</string>
+    <string name="ui_166" formatted="false">Cover display temporarily unavailable; keeping native behavior</string>
+    <string name="ui_167">Mode: %1$s\nResolution result: %2$s</string>
+    <string name="ui_168" formatted="false">Built-in display</string>
+    <string name="ui_169" formatted="false">Display theme</string>
+    <string name="ui_170" formatted="false">Theme settings affect only this module app, not the system or cover apps.</string>
+    <string name="ui_171" formatted="false">Follow system</string>
+    <string name="ui_172" formatted="false">Light</string>
+    <string name="ui_173" formatted="false">Dark</string>
+    <string name="ui_174">%1$s (Current)</string>
+    <string name="ui_175">%1$s is already the current theme</string>
+    <string name="ui_176" formatted="false">Help stray cats · Street Cat</string>
+    <string name="ui_177" formatted="false">Support stray cats through the Street Cat app. Use free kindness coins earned by checking in to feed cats. Regular phone top-ups, food orders and shopping through Street Cat also earn coins; no specific products are required.</string>
+    <string name="ui_178" formatted="false">View details</string>
+    <string name="ui_179" formatted="false">Copy link</string>
+    <string name="ui_180" formatted="false">Street Cat charity project</string>
+    <string name="ui_181" formatted="false">Link copied</string>
+    <string name="ui_182" formatted="false">Run the native home screen and apps on the cover display, with rotation, tiles and independent screen timeout controls.</string>
+    <string name="ui_183" formatted="false">Current version</string>
+    <string name="ui_184" formatted="false">Author</string>
+    <string name="ui_185" formatted="false">Updates &amp; releases</string>
+    <string name="ui_186" formatted="false">Check for updates</string>
+    <string name="ui_187" formatted="false">Checking…</string>
+    <string name="ui_188" formatted="false">Connecting to GitHub Releases</string>
+    <string name="ui_189">New version %1$s · %2$s</string>
+    <string name="ui_190" formatted="false">Open Releases</string>
+    <string name="ui_191">Published: %1$s\n\n</string>
+    <string name="ui_192" formatted="false">No release notes were provided.</string>
+    <string name="ui_193" formatted="false">You are up to date</string>
+    <string name="ui_194" formatted="false">Check again</string>
+    <string name="ui_195">Check failed: %1$s</string>
+    <string name="ui_196" formatted="false">Retry</string>
+    <string name="ui_197" formatted="false">Community / Feedback</string>
+    <string name="ui_198" formatted="false">QQ community group</string>
+    <string name="ui_199" formatted="false">GitHub project</string>
+    <string name="ui_200" formatted="false">Feedback &amp; diagnostics</string>
+    <string name="ui_201">Capturing %1$s logs</string>
+    <string name="ui_202" formatted="false">Log capture stopped</string>
+    <string name="ui_203">"File limit %1$d MB · %2$d logs · "</string>
+    <string name="ui_204" formatted="false">Stop the current log capture first</string>
+    <string name="ui_205" formatted="false">Stop</string>
+    <string name="ui_206" formatted="false">Start</string>
+    <string name="ui_207" formatted="false">Share</string>
+    <string name="ui_208" formatted="false">Delete</string>
+    <string name="ui_209" formatted="false">Set limit</string>
+    <string name="ui_210" formatted="false">File limit must be 10–500 MB</string>
+    <string name="ui_211" formatted="false">No logs to share</string>
+    <string name="ui_212" formatted="false">Share debug logs</string>
+    <string name="ui_213" formatted="false">Clear debug logs</string>
+    <string name="ui_214" formatted="false">Delete all FlexUnlock logs in Download/FlexUnlockLogs?</string>
+    <string name="ui_215" formatted="false">Cancel</string>
+    <string name="ui_216">Deleted %1$d logs</string>
+    <string name="ui_217">Switching Quick Settings to %1$s…</string>
+    <string name="ui_218">Quick Settings switched to %1$s</string>
+    <string name="ui_219" formatted="false">Quick Settings was not applied. Check that the system_server module is loaded.</string>
+    <string name="ui_220" formatted="false">Home screen</string>
+    <string name="ui_221" formatted="false">App drawer</string>
+    <string name="ui_222">Setting %1$s icons…</string>
+    <string name="ui_223">%1$s icons set to %2$dpx</string>
+    <string name="ui_224">%1$s icon size was not applied. Check that the Launcher module is loaded.</string>
+    <string name="ui_225" formatted="false">Hiding the home screen status bar…</string>
+    <string name="ui_226" formatted="false">Restoring the home screen status bar…</string>
+    <string name="ui_227" formatted="false">Home screen status bar hidden</string>
+    <string name="ui_228" formatted="false">Home screen status bar restored</string>
+    <string name="ui_229" formatted="false">Status bar setting was not applied. Check that the SystemUI module is loaded.</string>
+    <string name="ui_230" formatted="false">Start or resume requested</string>
+    <string name="ui_231" formatted="false">Restarting cover session</string>
+    <string name="ui_232" formatted="false">Current cover session ended</string>
+    <string name="ui_233" formatted="false">Unknown</string>
+    <string name="ui_234" formatted="false">No app is available to open this link</string>
+    <string name="ui_235" formatted="false">Loading apps…</string>
+    <string name="ui_236" formatted="false">Global size</string>
+    <string name="ui_237" formatted="false">Refresh app list</string>
+    <string name="ui_238" formatted="false">Search apps or package names</string>
+    <string name="ui_239" formatted="false">Filter</string>
+    <string name="ui_240" formatted="false">Clear selection</string>
+    <string name="ui_241" formatted="false">Save</string>
+    <string name="ui_242" formatted="false">Refreshing apps…</string>
+    <string name="ui_243" formatted="false">App list updated</string>
+    <string name="ui_244" formatted="false">Could not load the app list</string>
+    <string name="ui_245">Showing %1$d allowed apps</string>
+    <string name="ui_246">%1$d apps allowed · Save display settings and reopen apps to apply</string>
+    <string name="ui_247" formatted="false">System apps</string>
+    <string name="ui_248" formatted="false">User-installed apps</string>
+    <string name="ui_249" formatted="false">Allowed apps only</string>
+    <string name="ui_250" formatted="false">Select all in scope</string>
+    <string name="ui_251" formatted="false">Invert selection in scope</string>
+    <string name="ui_252" formatted="false">Filter &amp; bulk selection</string>
+    <string name="ui_253" formatted="false">Show apps</string>
+    <string name="ui_254" formatted="false">Bulk selection · Uses the system/user scope above only</string>
+    <string name="ui_255" formatted="false">Done</string>
+    <string name="ui_256" formatted="false">Global default</string>
+    <string name="ui_257" formatted="false">Applies to user apps on the cover display. Per-app settings take priority.</string>
+    <string name="ui_258" formatted="false">Per-app settings override global defaults. Save and reopen the app to apply.</string>
+    <string name="ui_259" formatted="false">Fullscreen</string>
+    <string name="ui_260" formatted="false">Popup</string>
+    <string name="ui_261" formatted="false">Fullscreen scale</string>
+    <string name="ui_262" formatted="false">Popup width</string>
+    <string name="ui_263" formatted="false">Popup height</string>
+    <string name="ui_264">%1$d%% · Below 100%% shows more content</string>
+    <string name="ui_265">%1$d%% · Cover safe area width</string>
+    <string name="ui_266">%1$d%% · Cover safe area height</string>
+    <string name="ui_267">%1$s · Display settings</string>
+    <string name="ui_268" formatted="false">Global default saved. Reopen apps to apply.</string>
+    <string name="ui_269" formatted="false">Saved. Reopen this app to apply.</string>
+    <string name="ui_270" formatted="false">Settings saved. Reopen apps to apply.</string>
+    <string name="ui_271" formatted="false">Display settings</string>
+    <string name="ui_272" formatted="false">Allowed</string>
+    <string name="ui_273" formatted="false">Not allowed</string>
+    <string name="ui_274">%1$s, %2$s, %3$s</string>
+    <string name="ui_275">Popup · %1$d%% × %2$d%%</string>
+    <string name="ui_276">Fullscreen · %1$d%%</string>
+    <string name="ui_277" formatted="false">Fullscreen · Default 100%</string>
+    <string name="ui_278" formatted="false">Compact</string>
+    <string name="ui_279" formatted="false">Full</string>
+    <string name="ui_280" formatted="false">FlexUnlock debug logs</string>
+    <string name="ui_281">FlexUnlock is capturing %1$s logs</string>
+    <string name="ui_282">File limit %1$d MB</string>
+    <string name="ui_283">GitHub returned HTTP %1$d</string>
+    <string name="ui_284" formatted="false">GitHub Release response is too long</string>
+    <string name="ui_285" formatted="false">Network unavailable or DNS lookup failed</string>
+    <string name="ui_286" formatted="false">GitHub connection timed out</string>
+    <string name="ui_287" formatted="false">Cannot connect to GitHub Releases right now</string>
+    <string name="language">Language</string>
+    <string name="apply">Apply</string>
+    <string name="language_name">English</string>
+    <string name="activity_title">Cover DeX Controls</string>
+    <string name="module_description">Cover DeX, native navigation and system_server display policies</string>
+</resources>

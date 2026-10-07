@@ -36,6 +36,13 @@ import com.flexunlock.dexlsp.config.CoverDisplayConfig
 import java.util.Collections
 import java.util.WeakHashMap
 
+internal fun keepCoverCustomTilePanelOpen(
+    coverSession: Boolean,
+    originalMode: Boolean,
+    expandedFraction: Float,
+    togglesInPlace: Boolean
+): Boolean = coverSession && originalMode && expandedFraction > 0.95f && togglesInPlace
+
 internal object NativeCoverQuickSettingsEditorHooks {
     private const val SCOPE = "CoverQuickSettingsEditor"
     private const val CONTROLLER_CLASS =
@@ -217,6 +224,7 @@ internal object NativeCoverQuickSettingsEditorHooks {
     private val migratedLegacyTileHosts: MutableSet<Any> = Collections.synchronizedSet(
         Collections.newSetFromMap(WeakHashMap())
     )
+    private val keepCustomTilePanelOpen = ThreadLocal<Boolean>()
 
     fun install(classLoader: ClassLoader) {
         runCatching {
@@ -1040,7 +1048,12 @@ internal object NativeCoverQuickSettingsEditorHooks {
                         subscreenUtilClass,
                         "closeSubscreenPanel",
                         object : XC_MethodHook() {
+                            override fun beforeHookedMethod(param: MethodHookParam) {
+                                if (keepCustomTilePanelOpen.get() == true) param.result = null
+                            }
+
                             override fun afterHookedMethod(param: MethodHookParam) {
+                                if (keepCustomTilePanelOpen.get() == true) return
                                 runCatching {
                                     if (!qsForcePortrait) return
                                     qsForcePortrait = false
@@ -1104,6 +1117,20 @@ internal object NativeCoverQuickSettingsEditorHooks {
                         "handleClick",
                         object : XC_MethodHook() {
                             override fun beforeHookedMethod(param: MethodHookParam) {
+                                val tile = param.thisObject
+                                val context = field(tile, "mContext") as? Context
+                                val tileState = field(tile, "mTile")
+                                val togglesInPlace = tileState != null && runCatching {
+                                    XposedHelpers.callMethod(tileState, "getActivityLaunchForClick") == null
+                                }.getOrDefault(false)
+                                if (context != null && keepCoverCustomTilePanelOpen(
+                                        CoverRuntime.isCoverSessionEligible(),
+                                        CoverQsModeConfig.readTransaction(context).isStableOriginal,
+                                        coverQsExpandedFraction(),
+                                        togglesInPlace
+                                    )) {
+                                    keepCustomTilePanelOpen.set(true)
+                                }
                                 runCatching {
                                     val mTile = XposedHelpers.getObjectField(
                                         param.thisObject,
@@ -1125,6 +1152,7 @@ internal object NativeCoverQuickSettingsEditorHooks {
                             }
 
                             override fun afterHookedMethod(param: MethodHookParam) {
+                                keepCustomTilePanelOpen.remove()
                                 if (param.getObjectExtra(
                                         "flexunlock_restore_tile_state"
                                     ) == true

@@ -19,9 +19,9 @@ import java.util.Date
 import java.util.Locale
 import kotlin.concurrent.thread
 
-internal enum class DebugLogMode(val value: String, val label: String) {
-    COMPACT("compact", "精简"),
-    FULL("full", "全量");
+internal enum class DebugLogMode(val value: String, val label: Int) {
+    COMPACT("compact", R.string.ui_278),
+    FULL("full", R.string.ui_279);
 
     companion object {
         fun from(value: String?): DebugLogMode = entries.firstOrNull { it.value == value } ?: COMPACT
@@ -119,13 +119,28 @@ class DebugLogCaptureService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        updateNotificationChannel()
+    }
+
+    private fun updateNotificationChannel() {
+        val context = ModuleLanguageStore.wrap(this)
         getSystemService(NotificationManager::class.java).createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "FlexUnlock 调试日志", NotificationManager.IMPORTANCE_LOW)
+            NotificationChannel(CHANNEL_ID, context.getString(R.string.ui_280), NotificationManager.IMPORTANCE_LOW)
         )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) stopCapture() else startCapture()
+        when (intent?.action) {
+            ACTION_STOP -> stopCapture()
+            ACTION_LANGUAGE -> {
+                updateNotificationChannel()
+                if (active) getSystemService(NotificationManager::class.java).notify(
+                    NOTIFICATION_ID,
+                    notification(DebugLogCaptureConfig.readMode(this), DebugLogCaptureConfig.readLimitMb(this))
+                )
+            }
+            else -> startCapture()
+        }
         return START_NOT_STICKY
     }
 
@@ -267,6 +282,7 @@ class DebugLogCaptureService : Service() {
     }
 
     private fun notification(mode: DebugLogMode, limitMb: Int): Notification {
+        val context = ModuleLanguageStore.wrap(this)
         val stopIntent = Intent(this, DebugLogCaptureService::class.java).setAction(ACTION_STOP)
         val pendingStop = PendingIntent.getService(
             this,
@@ -276,16 +292,17 @@ class DebugLogCaptureService : Service() {
         )
         return Notification.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("FlexUnlock 正在抓取${mode.label}日志")
-            .setContentText("单文件上限 $limitMb MB")
+            .setContentTitle(context.getString(R.string.ui_281, context.getString(mode.label)))
+            .setContentText(context.getString(R.string.ui_282, limitMb))
             .setOngoing(true)
-            .addAction(Notification.Action.Builder(null, "停止", pendingStop).build())
+            .addAction(Notification.Action.Builder(null, context.getString(R.string.ui_205), pendingStop).build())
             .build()
     }
 
     companion object {
         const val ACTION_START = "com.flexunlock.dexlsp.action.START_DEBUG_LOG"
         const val ACTION_STOP = "com.flexunlock.dexlsp.action.STOP_DEBUG_LOG"
+        private const val ACTION_LANGUAGE = "com.flexunlock.dexlsp.action.DEBUG_LOG_LANGUAGE"
         private const val CHANNEL_ID = "flexunlock_debug_log"
         private const val NOTIFICATION_ID = 1739
         private const val LOG_DIRECTORY = "Download/FlexUnlockLogs/"
@@ -294,6 +311,12 @@ class DebugLogCaptureService : Service() {
         @Volatile private var latestCaptureUri: Uri? = null
 
         fun isCaptureActive(): Boolean = active
+
+        fun refreshLanguage(context: Context) {
+            if (active) context.startService(
+                Intent(context, DebugLogCaptureService::class.java).setAction(ACTION_LANGUAGE)
+            )
+        }
 
         fun start(context: Context) {
             context.startForegroundService(

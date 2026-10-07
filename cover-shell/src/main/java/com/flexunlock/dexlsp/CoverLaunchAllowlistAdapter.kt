@@ -63,6 +63,8 @@ internal class CoverLaunchAllowlistAdapter(
         private val onToggle: (String, Boolean) -> Unit,
         private val onConfigure: (SelectablePackage) -> Unit
     ) : LinearLayout(context) {
+        private fun getString(id: Int, vararg args: Any): String =
+            if (args.isEmpty()) context.getString(id) else context.getString(id, *args)
         private val icon = ImageView(context).apply {
             scaleType = ImageView.ScaleType.FIT_CENTER
         }
@@ -80,7 +82,7 @@ internal class CoverLaunchAllowlistAdapter(
         private val configureButton = ImageButton(context).apply {
             stateListAnimator = null
             elevation = 0f
-            contentDescription = "显示设置"
+            contentDescription = getString(R.string.ui_271)
             setImageResource(R.drawable.ic_display_tune)
             imageTintList = ColorStateList.valueOf(palette.primary)
             scaleType = ImageView.ScaleType.CENTER
@@ -146,14 +148,14 @@ internal class CoverLaunchAllowlistAdapter(
             binding = false
             configureButton.alpha = if (item.selected) 1f else 0.72f
             contentDescription =
-                "${item.label}, ${if (item.selected) "已允许" else "未允许"}, ${profileSummary(item.profile)}"
+                getString(R.string.ui_274, item.label, if (item.selected) getString(R.string.ui_272) else getString(R.string.ui_273), profileSummary(item.profile))
         }
 
         private fun profileSummary(profile: AppDisplayProfile?): String = when {
             profile?.windowMode == AppWindowMode.POPUP ->
-                "弹窗 · ${profile.popupWidthPercent}% × ${profile.popupHeightPercent}%"
-            profile != null -> "全屏 · ${profile.fullscreenPercent}%"
-            else -> "全屏 · 默认 100%"
+                getString(R.string.ui_275, profile.popupWidthPercent, profile.popupHeightPercent)
+            profile != null -> getString(R.string.ui_276, profile.fullscreenPercent)
+            else -> getString(R.string.ui_277)
         }
 
         private fun dp(value: Int): Int =

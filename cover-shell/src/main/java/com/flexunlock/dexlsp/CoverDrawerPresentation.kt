@@ -141,6 +141,14 @@ internal fun coverDrawerCenteredIconTopPx(
     return paddingTopPx + ((availableHeight - contentHeight).coerceAtLeast(0) / 2)
 }
 
+internal fun coverHomeIconSizeForCellPx(requestedSizePx: Int, availableSizePx: Int): Int {
+    val maximum = minOf(MAX_COVER_ICON_SIZE_PX, (availableSizePx - 2).coerceAtLeast(1))
+    val minimum = minOf(MIN_COVER_ICON_SIZE_PX, maximum)
+    return minimum + (requestedSizePx - MIN_COVER_ICON_SIZE_PX)
+        .coerceIn(0, MAX_COVER_ICON_SIZE_PX - MIN_COVER_ICON_SIZE_PX) *
+        (maximum - minimum) / (MAX_COVER_ICON_SIZE_PX - MIN_COVER_ICON_SIZE_PX)
+}
+
 internal fun coverDrawerInitialTopPaddingPx(
     stableFull: Boolean,
     baseTopPaddingPx: Int,

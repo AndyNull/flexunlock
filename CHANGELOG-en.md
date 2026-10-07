@@ -2,6 +2,13 @@
 
 FlexUnlock follows semantic versioning. Build versions are sourced from the root `gradle.properties`.
 
+## 1.8.20 - 2026-10-07
+
+- Added a Simplified Chinese / English language card on Home. Simplified Chinese is the default.
+- Translated all module screens, app settings dialogs, status messages, accessibility labels and log notifications.
+- Persisted the language selection across app exits, process restarts and upgrades.
+- Language selection affects only the module app, not the system or third-party apps.
+
 ## 1.8.18 - 2026-09-23
 
 ### Fixed

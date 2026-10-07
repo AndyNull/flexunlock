@@ -1,5 +1,6 @@
 package com.flexunlock.dexlsp
 
+import android.content.Context
 import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
@@ -25,7 +26,7 @@ internal object GitHubReleaseChecker {
     private const val MAX_RESPONSE_CHARS = 256_000
     private const val MAX_RELEASE_NOTES_CHARS = 6_000
 
-    fun check(currentVersion: String): Result<ReleaseCheckResult> = runCatching {
+    fun check(context: Context, currentVersion: String): Result<ReleaseCheckResult> = runCatching {
         val connection = URL(RELEASES_API).openConnection() as HttpURLConnection
         try {
             connection.connectTimeout = 8_000
@@ -34,7 +35,7 @@ internal object GitHubReleaseChecker {
             connection.setRequestProperty("Accept", "application/vnd.github+json")
             connection.setRequestProperty("User-Agent", "FlexUnlock/$currentVersion")
             val status = connection.responseCode
-            if (status !in 200..299) error("GitHub 返回 HTTP $status")
+            if (status !in 200..299) error(context.getString(R.string.ui_283, status))
             val response = connection.inputStream.bufferedReader().use { reader ->
                 val buffer = CharArray(8_192)
                 val text = StringBuilder()
@@ -42,7 +43,7 @@ internal object GitHubReleaseChecker {
                     val count = reader.read(buffer)
                     if (count < 0) break
                     if (text.length + count > MAX_RESPONSE_CHARS) {
-                        error("GitHub Release 响应过长")
+                        error(context.getString(R.string.ui_284))
                     }
                     text.append(buffer, 0, count)
                 }
@@ -59,7 +60,7 @@ internal object GitHubReleaseChecker {
                         name = json.optString("name").ifBlank { tag },
                         publishedAt = json.optString("published_at")
                             .substringBefore('T')
-                            .ifBlank { "未知" },
+                            .ifBlank { context.getString(R.string.ui_233) },
                         notes = sanitizeReleaseNotes(json.optString("body"))
                     )
                 }
@@ -74,10 +75,10 @@ internal object GitHubReleaseChecker {
         }
     }
 
-    fun failureMessage(error: Throwable): String = when (error) {
-        is UnknownHostException -> "网络不可用或 DNS 解析失败"
-        is SocketTimeoutException -> "连接 GitHub 超时"
-        else -> error.message ?: "暂时无法连接 GitHub Releases"
+    fun failureMessage(context: Context, error: Throwable): String = when (error) {
+        is UnknownHostException -> context.getString(R.string.ui_285)
+        is SocketTimeoutException -> context.getString(R.string.ui_286)
+        else -> error.message ?: context.getString(R.string.ui_287)
     }
 
     internal fun compareVersions(candidate: String, current: String): Int {

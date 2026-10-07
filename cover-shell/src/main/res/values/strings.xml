@@ -1,0 +1,295 @@
+<resources>
+    <string name="ui_000" formatted="false">控制中心</string>
+    <string name="ui_001" formatted="false">主页</string>
+    <string name="ui_002" formatted="false">应用管理与缩放</string>
+    <string name="ui_003" formatted="false">应用</string>
+    <string name="ui_004" formatted="false">磁贴设置</string>
+    <string name="ui_005" formatted="false">磁贴</string>
+    <string name="ui_006" formatted="false">外屏控制</string>
+    <string name="ui_007" formatted="false">控制</string>
+    <string name="ui_008" formatted="false">外观主题</string>
+    <string name="ui_009" formatted="false">主题</string>
+    <string name="ui_010" formatted="false">公益项目</string>
+    <string name="ui_011" formatted="false">公益</string>
+    <string name="ui_012" formatted="false">关于 FlexUnlock</string>
+    <string name="ui_013" formatted="false">关于</string>
+    <string name="ui_014" formatted="false">展开侧边栏</string>
+    <string name="ui_015" formatted="false">收起侧边栏</string>
+    <string name="ui_016" formatted="false">外屏状态</string>
+    <string name="ui_017" formatted="false">等待 system_server 返回外屏状态。</string>
+    <string name="ui_018" formatted="false">外屏设置</string>
+    <string name="ui_019" formatted="false">应用显示</string>
+    <string name="ui_020" formatted="false">逐 App 显示设置</string>
+    <string name="ui_021" formatted="false">管理外屏应用，并为电话等应用设置全屏百分比或弹窗宽高百分比。</string>
+    <string name="ui_022" formatted="false">应用缩放</string>
+    <string name="ui_023" formatted="false">已保存，重新打开 App 后生效</string>
+    <string name="ui_024">%1$s · 当前</string>
+    <string name="ui_025">快捷设置已是 %1$s</string>
+    <string name="ui_026" formatted="false">外屏会话</string>
+    <string name="ui_027" formatted="false">启动 DeX</string>
+    <string name="ui_028" formatted="false">退出 DeX</string>
+    <string name="ui_029" formatted="false">桌面显示</string>
+    <string name="ui_030" formatted="false">顶部状态栏</string>
+    <string name="ui_031" formatted="false">仅外屏桌面：已隐藏</string>
+    <string name="ui_032" formatted="false">仅外屏桌面：正常显示</string>
+    <string name="ui_033" formatted="false">隐藏状态栏 · 已开启</string>
+    <string name="ui_034" formatted="false">隐藏状态栏 · 已关闭</string>
+    <string name="ui_035" formatted="false">图标大小</string>
+    <string name="ui_036" formatted="false">桌面与应用抽屉</string>
+    <string name="ui_037" formatted="false">分别调整图标目标上限；空间不足时会自动缩小，文件夹自动跟随。</string>
+    <string name="ui_038" formatted="false">桌面图标</string>
+    <string name="ui_039" formatted="false">应用抽屉图标</string>
+    <string name="ui_040" formatted="false">外屏锁屏页面自动息屏</string>
+    <string name="ui_041" formatted="false">30秒</string>
+    <string name="ui_042" formatted="false">1分钟</string>
+    <string name="ui_043" formatted="false">2分钟</string>
+    <string name="ui_044" formatted="false">33分钟</string>
+    <string name="ui_045" formatted="false">5分钟</string>
+    <string name="ui_046" formatted="false">10分钟</string>
+    <string name="ui_047" formatted="false">30分钟</string>
+    <string name="ui_048">外屏锁屏页面自动息屏已设为%1$s</string>
+    <string name="ui_049" formatted="false">外屏锁屏页面自动息屏设置未生效，请确认模块已加载</string>
+    <string name="ui_050" formatted="false">系统更新</string>
+    <string name="ui_051" formatted="false">停止三星系统更新</string>
+    <string name="ui_052" formatted="false">仅停止系统OTA检测与下载，不影响Galaxy Store或Play商店应用更新。</string>
+    <string name="ui_053" formatted="false">系统更新 · 已停止</string>
+    <string name="ui_054" formatted="false">系统更新 · 允许</string>
+    <string name="ui_055" formatted="false">外屏输入法布局</string>
+    <string name="ui_056">紧凑键盘 · %1$d%%</string>
+    <string name="ui_057" formatted="false">铺满键盘</string>
+    <string name="ui_058" formatted="false">减少键盘占用高度，保留更多输入框区域。</string>
+    <string name="ui_059" formatted="false">恢复输入法原始铺满布局。</string>
+    <string name="ui_060" formatted="false">切换为铺满键盘</string>
+    <string name="ui_061" formatted="false">切换为紧凑键盘</string>
+    <string name="ui_062" formatted="false">已切换为紧凑键盘</string>
+    <string name="ui_063" formatted="false">已切换为铺满键盘</string>
+    <string name="ui_064" formatted="false">输入法布局切换未生效，请确认模块已加载</string>
+    <string name="ui_065">紧凑键盘比例已设为 %1$d%%</string>
+    <string name="ui_066" formatted="false">紧凑键盘比例设置未生效，请确认模块已加载</string>
+    <string name="ui_067" formatted="false">紧凑键盘比例</string>
+    <string name="ui_068" formatted="false">三星系统更新已停止</string>
+    <string name="ui_069" formatted="false">三星系统更新已恢复</string>
+    <string name="ui_070" formatted="false">系统更新状态切换失败，请确认模块已加载</string>
+    <string name="ui_071" formatted="false">外屏显示模式</string>
+    <string name="ui_072" formatted="false">完整 DeX 桌面</string>
+    <string name="ui_073" formatted="false">原始外屏下拉</string>
+    <string name="ui_074" formatted="false">完整内屏下拉</string>
+    <string name="ui_075" formatted="false">正在切换到完整模式</string>
+    <string name="ui_076" formatted="false">正在恢复原始模式</string>
+    <string name="ui_077" formatted="false">正在回滚未完成切换</string>
+    <string name="ui_078" formatted="false">当前模式</string>
+    <string name="ui_079" formatted="false">原始下拉</string>
+    <string name="ui_080" formatted="false">完整下拉</string>
+    <string name="ui_081" formatted="false">完整 DeX</string>
+    <string name="ui_082" formatted="false">隐藏异形区域</string>
+    <string name="ui_083" formatted="false">隐藏异形区域 · 已开启</string>
+    <string name="ui_084" formatted="false">隐藏异形区域 · 已关闭</string>
+    <string name="ui_085" formatted="false">异形区域已隐藏</string>
+    <string name="ui_086" formatted="false">异形区域已恢复</string>
+    <string name="ui_087" formatted="false">异形区域切换失败，请确认模块已加载</string>
+    <string name="ui_088" formatted="false">完整模式相机</string>
+    <string name="ui_089" formatted="false">相机布局</string>
+    <string name="ui_090" formatted="false">使用内屏相机布局，适配完整模式外屏画布</string>
+    <string name="ui_091" formatted="false">使用系统原始外屏相机布局</string>
+    <string name="ui_092" formatted="false">内屏布局</string>
+    <string name="ui_093" formatted="false">外屏布局</string>
+    <string name="ui_094">%1$s · 当前</string>
+    <string name="ui_095" formatted="false">内屏相机布局</string>
+    <string name="ui_096" formatted="false">原始外屏相机</string>
+    <string name="ui_097">已切换为%1$s</string>
+    <string name="ui_098" formatted="false">相机布局切换未生效，请重启设备以加载新版模块</string>
+    <string name="ui_099" formatted="false">原始</string>
+    <string name="ui_100" formatted="false">完整</string>
+    <string name="ui_101">快捷设置已切换为%1$s</string>
+    <string name="ui_102" formatted="false">快捷设置模式未生效，系统已保持或恢复原始通道</string>
+    <string name="ui_103" formatted="false">显示参数</string>
+    <string name="ui_104" formatted="false">外屏不可用</string>
+    <string name="ui_105" formatted="false">识别到外屏后可修改该显示器的分辨率和 DPI。</string>
+    <string name="ui_106" formatted="false">当前输出</string>
+    <string name="ui_107" formatted="false">宽</string>
+    <string name="ui_108" formatted="false">高</string>
+    <string name="ui_109" formatted="false">自定义</string>
+    <string name="ui_110">原始 · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_111">大字号 · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_112">外接 · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_113">1080P 等比 · %1$d×%2$d · %3$d DPI</string>
+    <string name="ui_114" formatted="false">分辨率或 DPI 超出范围</string>
+    <string name="ui_115" formatted="false">完整模式分辨率必须保持近似正方形</string>
+    <string name="ui_116" formatted="false">分辨率必须保持外屏原生宽高比</string>
+    <string name="ui_117" formatted="false">已应用</string>
+    <string name="ui_118" formatted="false">恢复默认</string>
+    <string name="ui_119" formatted="false">已恢复默认</string>
+    <string name="ui_120" formatted="false">显示参数未生效，请确认模块已加载</string>
+    <string name="ui_121" formatted="false">外接分辨率</string>
+    <string name="ui_122" formatted="false">系统默认 · 当前</string>
+    <string name="ui_123" formatted="false">系统默认</string>
+    <string name="ui_124" formatted="false">" · 当前"</string>
+    <string name="ui_125">外接分辨率已设为 %1$d×%2$d</string>
+    <string name="ui_126" formatted="false">外接分辨率已恢复系统默认</string>
+    <string name="ui_127" formatted="false">外接刷新率</string>
+    <string name="ui_128">外接刷新率已设为 %1$s Hz</string>
+    <string name="ui_129" formatted="false">外接刷新率已恢复系统默认</string>
+    <string name="ui_130">外接显示器已设为 %1$d×%2$d · %3$s Hz</string>
+    <string name="ui_131" formatted="false">外接显示器已恢复系统默认输出模式</string>
+    <string name="ui_132" formatted="false">外接显示器输出模式未生效</string>
+    <string name="ui_133" formatted="false">完整外屏 DeX 已开启</string>
+    <string name="ui_134" formatted="false">完整外屏 DeX 已关闭</string>
+    <string name="ui_135" formatted="false">桌面模式未生效，请确认模块已加载</string>
+    <string name="ui_136" formatted="false">外屏选择</string>
+    <string name="ui_137" formatted="false">正在读取外屏状态</string>
+    <string name="ui_138" formatted="false">外屏由 system_server 统一识别；App 不会自行猜测显示器。</string>
+    <string name="ui_139" formatted="false">刷新外屏状态</string>
+    <string name="ui_140" formatted="false">自动识别</string>
+    <string name="ui_141" formatted="false">手动选择</string>
+    <string name="ui_142">当前模式 · %1$s</string>
+    <string name="ui_143" formatted="false">可信候选</string>
+    <string name="ui_144" formatted="false">暂无可选外屏</string>
+    <string name="ui_145" formatted="false">未发现可信的内置或有线显示器。</string>
+    <string name="ui_146" formatted="false">" · 当前手动"</string>
+    <string name="ui_147">手动选择 %1$s</string>
+    <string name="ui_148" formatted="false">该外屏已是当前手动选择</string>
+    <string name="ui_149" formatted="false">恢复自动识别</string>
+    <string name="ui_150" formatted="false">刷新候选列表</string>
+    <string name="ui_151">正在应用%1$s…</string>
+    <string name="ui_152">%1$s已生效</string>
+    <string name="ui_153">%1$s未生效，请确认模块已加载后重试</string>
+    <string name="ui_154" formatted="false">正在刷新外屏状态…</string>
+    <string name="ui_155" formatted="false">外屏状态已刷新</string>
+    <string name="ui_156" formatted="false">未收到 system_server 响应，请确认模块已加载</string>
+    <string name="ui_157" formatted="false">自动</string>
+    <string name="ui_158" formatted="false">手动</string>
+    <string name="ui_159" formatted="false">内置外屏</string>
+    <string name="ui_160" formatted="false">自动命中</string>
+    <string name="ui_161" formatted="false">手动命中</string>
+    <string name="ui_162" formatted="false">手动目标不可用，已回到自动</string>
+    <string name="ui_163" formatted="false">存在多个同等可信候选，安全起见未猜测</string>
+    <string name="ui_164" formatted="false">显示服务尚未就绪，保持原生行为</string>
+    <string name="ui_165" formatted="false">当前没有可信外屏，保持原生行为</string>
+    <string name="ui_166" formatted="false">外屏暂不可用，保持原生行为</string>
+    <string name="ui_167">模式：%1$s\n解析结果：%2$s</string>
+    <string name="ui_168" formatted="false">内置显示器</string>
+    <string name="ui_169" formatted="false">显示模式</string>
+    <string name="ui_170" formatted="false">主题设置仅作用于模块 App，不修改系统或外屏应用主题。</string>
+    <string name="ui_171" formatted="false">跟随系统</string>
+    <string name="ui_172" formatted="false">浅色</string>
+    <string name="ui_173" formatted="false">深色</string>
+    <string name="ui_174">%1$s（当前）</string>
+    <string name="ui_175">%1$s 已是当前主题</string>
+    <string name="ui_176" formatted="false">救助流浪猫 · 街猫项目</string>
+    <string name="ui_177" formatted="false">通过街猫 App 云守护流浪猫，可用签到获得的免费爱心币投喂猫粮。从街猫入口正常充话费、点外卖或购物，也会返还爱心币，无需购买指定商品。</string>
+    <string name="ui_178" formatted="false">查看详情</string>
+    <string name="ui_179" formatted="false">复制链接</string>
+    <string name="ui_180" formatted="false">街猫公益项目</string>
+    <string name="ui_181" formatted="false">链接已复制</string>
+    <string name="ui_182" formatted="false">在外屏运行原生桌面与 App，并提供旋转、磁贴和独立息屏控制。</string>
+    <string name="ui_183" formatted="false">当前版本</string>
+    <string name="ui_184" formatted="false">作者</string>
+    <string name="ui_185" formatted="false">更新与发布</string>
+    <string name="ui_186" formatted="false">检查更新</string>
+    <string name="ui_187" formatted="false">正在检查…</string>
+    <string name="ui_188" formatted="false">正在连接 GitHub Releases</string>
+    <string name="ui_189">发现新版本 %1$s · %2$s</string>
+    <string name="ui_190" formatted="false">前往 Releases</string>
+    <string name="ui_191">发布时间：%1$s\n\n</string>
+    <string name="ui_192" formatted="false">该 Release 未填写更新日志。</string>
+    <string name="ui_193" formatted="false">当前已是最新版本</string>
+    <string name="ui_194" formatted="false">重新检查</string>
+    <string name="ui_195">检查失败：%1$s</string>
+    <string name="ui_196" formatted="false">重试检查</string>
+    <string name="ui_197" formatted="false">交流 / 反馈</string>
+    <string name="ui_198" formatted="false">QQ 交流群</string>
+    <string name="ui_199" formatted="false">GitHub 项目主页</string>
+    <string name="ui_200" formatted="false">反馈与诊断</string>
+    <string name="ui_201">%1$s日志抓取中</string>
+    <string name="ui_202" formatted="false">日志抓取已停止</string>
+    <string name="ui_203">"单文件上限 %1$d MB · 已有 %2$d 个日志 · "</string>
+    <string name="ui_204" formatted="false">请先停止当前日志抓取</string>
+    <string name="ui_205" formatted="false">停止</string>
+    <string name="ui_206" formatted="false">开始</string>
+    <string name="ui_207" formatted="false">分享</string>
+    <string name="ui_208" formatted="false">删除</string>
+    <string name="ui_209" formatted="false">设置上限</string>
+    <string name="ui_210" formatted="false">文件上限必须为 10-500 MB</string>
+    <string name="ui_211" formatted="false">暂无可分享的日志</string>
+    <string name="ui_212" formatted="false">分享调试日志</string>
+    <string name="ui_213" formatted="false">清空调试日志</string>
+    <string name="ui_214" formatted="false">删除 Download/FlexUnlockLogs 中的全部 FlexUnlock 日志？</string>
+    <string name="ui_215" formatted="false">取消</string>
+    <string name="ui_216">已删除 %1$d 个日志</string>
+    <string name="ui_217">正在切换快捷设置为 %1$s…</string>
+    <string name="ui_218">快捷设置已切换为 %1$s</string>
+    <string name="ui_219" formatted="false">快捷设置未生效，请确认 system_server 模块已加载</string>
+    <string name="ui_220" formatted="false">桌面</string>
+    <string name="ui_221" formatted="false">应用抽屉</string>
+    <string name="ui_222">正在设置%1$s 图标…</string>
+    <string name="ui_223">%1$s 图标已设为 %2$dpx</string>
+    <string name="ui_224">%1$s 图标设置未生效，请确认 Launcher 模块已加载</string>
+    <string name="ui_225" formatted="false">正在关闭桌面顶部状态栏…</string>
+    <string name="ui_226" formatted="false">正在恢复桌面顶部状态栏…</string>
+    <string name="ui_227" formatted="false">已关闭桌面顶部状态栏</string>
+    <string name="ui_228" formatted="false">已恢复桌面顶部状态栏</string>
+    <string name="ui_229" formatted="false">顶部状态栏设置未生效，请确认 SystemUI 模块已加载</string>
+    <string name="ui_230" formatted="false">已请求启动或恢复</string>
+    <string name="ui_231" formatted="false">正在重启外屏会话</string>
+    <string name="ui_232" formatted="false">已退出当前外屏会话</string>
+    <string name="ui_233" formatted="false">未知</string>
+    <string name="ui_234" formatted="false">未找到可打开链接的应用</string>
+    <string name="ui_235" formatted="false">正在加载应用列表…</string>
+    <string name="ui_236" formatted="false">全局大小</string>
+    <string name="ui_237" formatted="false">刷新应用列表</string>
+    <string name="ui_238" formatted="false">搜索应用或包名</string>
+    <string name="ui_239" formatted="false">筛选</string>
+    <string name="ui_240" formatted="false">取消全部</string>
+    <string name="ui_241" formatted="false">保存</string>
+    <string name="ui_242" formatted="false">正在刷新应用列表…</string>
+    <string name="ui_243" formatted="false">应用列表已更新</string>
+    <string name="ui_244" formatted="false">应用列表读取失败</string>
+    <string name="ui_245">显示 %1$d 个已允许应用</string>
+    <string name="ui_246">已允许 %1$d 个应用 · 选择显示设置后保存，重新打开 App 生效</string>
+    <string name="ui_247" formatted="false">系统应用</string>
+    <string name="ui_248" formatted="false">用户安装应用</string>
+    <string name="ui_249" formatted="false">仅显示已允许</string>
+    <string name="ui_250" formatted="false">全选当前范围</string>
+    <string name="ui_251" formatted="false">反选当前范围</string>
+    <string name="ui_252" formatted="false">筛选与批量选择</string>
+    <string name="ui_253" formatted="false">显示应用</string>
+    <string name="ui_254" formatted="false">批量选择 · 仅按上述系统/用户范围生效</string>
+    <string name="ui_255" formatted="false">完成</string>
+    <string name="ui_256" formatted="false">全局默认</string>
+    <string name="ui_257" formatted="false">对外屏用户应用生效；单独显示设置优先。</string>
+    <string name="ui_258" formatted="false">单独设置优先于全局默认；保存后重新打开 App 生效。</string>
+    <string name="ui_259" formatted="false">全屏</string>
+    <string name="ui_260" formatted="false">弹窗</string>
+    <string name="ui_261" formatted="false">全屏显示比例</string>
+    <string name="ui_262" formatted="false">弹窗宽度</string>
+    <string name="ui_263" formatted="false">弹窗高度</string>
+    <string name="ui_264">%1$d%% · 小于 100%% 显示更多内容</string>
+    <string name="ui_265">%1$d%% · 外屏安全区域宽度</string>
+    <string name="ui_266">%1$d%% · 外屏安全区域高度</string>
+    <string name="ui_267">%1$s · 显示设置</string>
+    <string name="ui_268" formatted="false">全局默认已保存，重新打开应用生效</string>
+    <string name="ui_269" formatted="false">已保存，重新打开该应用生效</string>
+    <string name="ui_270" formatted="false">设置已保存，重新打开应用生效</string>
+    <string name="ui_271" formatted="false">显示设置</string>
+    <string name="ui_272" formatted="false">已允许</string>
+    <string name="ui_273" formatted="false">未允许</string>
+    <string name="ui_274">%1$s, %2$s, %3$s</string>
+    <string name="ui_275">弹窗 · %1$d%% × %2$d%%</string>
+    <string name="ui_276">全屏 · %1$d%%</string>
+    <string name="ui_277" formatted="false">全屏 · 默认 100%</string>
+    <string name="ui_278" formatted="false">精简</string>
+    <string name="ui_279" formatted="false">全量</string>
+    <string name="ui_280" formatted="false">FlexUnlock 调试日志</string>
+    <string name="ui_281">FlexUnlock 正在抓取%1$s日志</string>
+    <string name="ui_282">单文件上限 %1$d MB</string>
+    <string name="ui_283">GitHub 返回 HTTP %1$d</string>
+    <string name="ui_284" formatted="false">GitHub Release 响应过长</string>
+    <string name="ui_285" formatted="false">网络不可用或 DNS 解析失败</string>
+    <string name="ui_286" formatted="false">连接 GitHub 超时</string>
+    <string name="ui_287" formatted="false">暂时无法连接 GitHub Releases</string>
+    <string name="language">语言</string>
+    <string name="apply">应用</string>
+    <string name="language_name">简体中文</string>
+    <string name="activity_title">外屏 DeX 切换</string>
+    <string name="module_description">外屏 DeX、原生导航与 system_server 显示策略</string>
+</resources>

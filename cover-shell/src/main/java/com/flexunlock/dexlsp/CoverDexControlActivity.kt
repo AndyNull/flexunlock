@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -67,14 +68,14 @@ class CoverDexControlActivity : Activity() {
         val action: () -> Unit
     )
 
-    private enum class Page(val title: String, val shortTitle: String) {
-        HOME("控制中心", "主页"),
-        APPS("应用管理与缩放", "应用"),
-        TILES("磁贴设置", "磁贴"),
-        SETTINGS("外屏控制", "控制"),
-        THEME("外观主题", "主题"),
-        CHARITY("公益项目", "公益"),
-        ABOUT("关于 FlexUnlock", "关于")
+    private enum class Page(val title: Int, val shortTitle: Int) {
+        HOME(R.string.ui_000, R.string.ui_001),
+        APPS(R.string.ui_002, R.string.ui_003),
+        TILES(R.string.ui_004, R.string.ui_005),
+        SETTINGS(R.string.ui_006, R.string.ui_007),
+        THEME(R.string.ui_008, R.string.ui_009),
+        CHARITY(R.string.ui_010, R.string.ui_011),
+        ABOUT(R.string.ui_012, R.string.ui_013)
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -96,6 +97,11 @@ class CoverDexControlActivity : Activity() {
     private var homeStatusBody: TextView? = null
     private var pendingHomeStatusBarHidden: Boolean? = null
     private var restoringPageScroll = false
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase)
+        applyOverrideConfiguration(ModuleLanguageStore.configuration(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -432,7 +438,7 @@ class CoverDexControlActivity : Activity() {
             ROTATION_270_NAV_ICON_PAD_PX,
             ROTATION_270_NAV_ICON_PAD_PX
         )
-        contentDescription = page.shortTitle
+        contentDescription = getString(page.shortTitle)
         setOnClickListener {
             animate().cancel()
             animate()
@@ -514,7 +520,7 @@ class CoverDexControlActivity : Activity() {
         clipChildren = false
         isClickable = true
         isFocusable = true
-        contentDescription = if (sidebarCollapsed) "展开侧边栏" else "收起侧边栏"
+        contentDescription = if (sidebarCollapsed) getString(R.string.ui_014) else getString(R.string.ui_015)
         setOnClickListener { setSidebarCollapsed(!sidebarCollapsed) }
         addView(
             ImageButton(context).apply {
@@ -541,7 +547,7 @@ class CoverDexControlActivity : Activity() {
 
     private fun collapsedNavigationItem(page: Page, button: Button): View =
         FrameLayout(this).apply {
-            contentDescription = page.shortTitle
+            contentDescription = getString(page.shortTitle)
             button.text = ""
             button.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             button.compoundDrawableTintList = null
@@ -567,7 +573,7 @@ class CoverDexControlActivity : Activity() {
 
     private fun navigationButton(page: Page): Button = Button(this).apply {
         useFlatSurface()
-        text = page.shortTitle
+        text = getString(page.shortTitle)
         textSize = 12f
         isAllCaps = false
         minHeight = 0
@@ -577,7 +583,7 @@ class CoverDexControlActivity : Activity() {
         setPadding(dp(4), dp(4), dp(4), dp(4))
         gravity = Gravity.CENTER
         setTextColor(palette.secondaryText)
-        contentDescription = page.shortTitle
+        contentDescription = getString(page.shortTitle)
         if (sidebarCollapsed) {
             setCompoundDrawablesWithIntrinsicBounds(sidebarIcon(page), 0, 0, 0)
             compoundDrawableTintList = ColorStateList.valueOf(palette.secondaryText)
@@ -671,7 +677,7 @@ class CoverDexControlActivity : Activity() {
             )
         )
         updateNavigationSelection()
-        pageContainer.addView(label(page.title, 20f, palette.text).apply {
+        pageContainer.addView(label(getString(page.title), 20f, palette.text).apply {
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         }, matchWrap())
         when (page) {
@@ -742,17 +748,31 @@ class CoverDexControlActivity : Activity() {
     private fun renderHome() {
         val status = CoverDisplayConfig.readStatus(this)
         homeStatusBody = addCard(
-            "外屏状态",
+            getString(R.string.ui_016),
             status?.let(::displayStatusSummary)
-                ?: "等待 system_server 返回外屏状态。"
+                ?: getString(R.string.ui_017)
         )
-        addAction("外屏设置") { openSettingsPage() }
-        addSectionTitle("应用显示")
+        addAction(getString(R.string.ui_018)) { openSettingsPage() }
+        addSectionTitle(getString(R.string.ui_019))
         addCard(
-            "逐 App 显示设置",
-            "管理外屏应用，并为电话等应用设置全屏百分比或弹窗宽高百分比。"
+            getString(R.string.ui_020),
+            getString(R.string.ui_021)
         )
-        addAction("应用缩放") { showApplicationPage() }
+        addAction(getString(R.string.ui_022)) { showApplicationPage() }
+        addCard(getString(R.string.language), getString(R.string.language_name))
+        val selected = ModuleLanguageStore.selected(this)
+        addActionGrid(listOf(
+            ModuleLanguage.CHINESE to "简体中文",
+            ModuleLanguage.ENGLISH to "English"
+        ).map { (language, name) ->
+            ActionOption(name, language == selected) {
+                if (language != selected) {
+                    ModuleLanguageStore.save(this, language)
+                    DebugLogCaptureService.refreshLanguage(this)
+                    recreate()
+                }
+            }
+        })
     }
 
     private fun showApplicationPage() {
@@ -763,7 +783,7 @@ class CoverDexControlActivity : Activity() {
         if (appPanel == null) {
             contentHost.removeAllViews()
             appPanel = CoverLaunchAllowlistPanel(this, palette) {
-                Toast.makeText(this, "已保存，重新打开 App 后生效", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.ui_023), Toast.LENGTH_SHORT).show()
             }
         } else {
             (appPanel?.parent as? ViewGroup)?.removeView(appPanel)
@@ -834,7 +854,7 @@ class CoverDexControlActivity : Activity() {
             CoverQsGrid.entries.map { grid ->
                 ActionOption(
                     label = if (grid == selectedGrid) {
-                        "${grid.label} · 当前"
+                        getString(R.string.ui_024, grid.label)
                     } else {
                         grid.label
                     },
@@ -845,7 +865,7 @@ class CoverDexControlActivity : Activity() {
                     } else {
                         Toast.makeText(
                             this,
-                            "快捷设置已是 ${grid.label}",
+                            getString(R.string.ui_025, grid.label),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -860,67 +880,67 @@ class CoverDexControlActivity : Activity() {
         renderImeKeyboardControl()
         renderOutputModeControl()
         renderHalfModeControl()
-        addSectionTitle("外屏会话")
+        addSectionTitle(getString(R.string.ui_026))
         addActionGrid(
             listOf(
-                ActionOption("启动 DeX") {
+                ActionOption(getString(R.string.ui_027)) {
                     sendCoverAction(ACTION_ENABLE_COVER_DEX)
                 },
-                ActionOption("退出 DeX", emphasized = false) {
+                ActionOption(getString(R.string.ui_028), emphasized = false) {
                     sendCoverAction(ACTION_DISABLE_COVER_DEX)
                 }
             )
         )
         renderCoverLockscreenTimeoutControl()
         renderSystemUpdateControl()
-        addSectionTitle("桌面显示")
+        addSectionTitle(getString(R.string.ui_029))
         val hideCoverHomeStatusBar = pendingHomeStatusBarHidden
             ?: isCoverHomeStatusBarHidden(this)
         addCard(
-            "顶部状态栏",
+            getString(R.string.ui_030),
             if (hideCoverHomeStatusBar) {
-                "仅外屏桌面：已隐藏"
+                getString(R.string.ui_031)
             } else {
-                "仅外屏桌面：正常显示"
+                getString(R.string.ui_032)
             }
         )
         addAction(
             label = if (hideCoverHomeStatusBar) {
-                "隐藏状态栏 · 已开启"
+                getString(R.string.ui_033)
             } else {
-                "隐藏状态栏 · 已关闭"
+                getString(R.string.ui_034)
             },
             emphasized = hideCoverHomeStatusBar
         ) {
             setCoverHomeStatusBarHidden(!hideCoverHomeStatusBar)
         }
-        addSectionTitle("图标大小")
+        addSectionTitle(getString(R.string.ui_035))
         addCard(
-            "桌面与应用抽屉",
-            "分别调整图标目标上限；空间不足时会自动缩小，文件夹自动跟随。"
+            getString(R.string.ui_036),
+            getString(R.string.ui_037)
         )
         addIconSizeControl(
-            title = "桌面图标",
+            title = getString(R.string.ui_038),
             surface = COVER_ICON_SURFACE_HOME
         )
         addIconSizeControl(
-            title = "应用抽屉图标",
+            title = getString(R.string.ui_039),
             surface = COVER_ICON_SURFACE_DRAWER,
             topMargin = 12
         )
     }
 
     private fun renderCoverLockscreenTimeoutControl() {
-        addSectionTitle("外屏锁屏页面自动息屏")
+        addSectionTitle(getString(R.string.ui_040))
         val current = CoverDisplayConfig.readLockscreenTimeoutMillis(this)
         val options = listOf(
-            30_000L to "30秒",
-            60_000L to "1分钟",
-            120_000L to "2分钟",
-            1_980_000L to "33分钟",
-            300_000L to "5分钟",
-            600_000L to "10分钟",
-            1_800_000L to "30分钟"
+            30_000L to getString(R.string.ui_041),
+            60_000L to getString(R.string.ui_042),
+            120_000L to getString(R.string.ui_043),
+            1_980_000L to getString(R.string.ui_044),
+            300_000L to getString(R.string.ui_045),
+            600_000L to getString(R.string.ui_046),
+            1_800_000L to getString(R.string.ui_047)
         )
         pageContainer.addView(Spinner(this).apply {
             adapter = object : ArrayAdapter<String>(
@@ -969,21 +989,21 @@ class CoverDexControlActivity : Activity() {
             isApplied = {
                 CoverDisplayConfig.readLockscreenTimeoutMillis(this) == timeoutMillis
             },
-            successMessage = "外屏锁屏页面自动息屏已设为$label",
-            failureMessage = "外屏锁屏页面自动息屏设置未生效，请确认模块已加载",
+            successMessage = getString(R.string.ui_048, label),
+            failureMessage = getString(R.string.ui_049),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
 
     private fun renderSystemUpdateControl() {
-        addSectionTitle("系统更新")
+        addSectionTitle(getString(R.string.ui_050))
         val blocked = CoverDisplayConfig.readSystemUpdateBlocked(this)
         addCard(
-            "停止三星系统更新",
-            "仅停止系统OTA检测与下载，不影响Galaxy Store或Play商店应用更新。"
+            getString(R.string.ui_051),
+            getString(R.string.ui_052)
         )
         addAction(
-            label = if (blocked) "系统更新 · 已停止" else "系统更新 · 允许",
+            label = if (blocked) getString(R.string.ui_053) else getString(R.string.ui_054),
             emphasized = blocked
         ) {
             requestSystemUpdateBlocked(!blocked)
@@ -993,13 +1013,13 @@ class CoverDexControlActivity : Activity() {
     private fun renderImeKeyboardControl() {
         val compact = CoverDisplayConfig.readImeCompact(this)
         val percent = CoverDisplayConfig.readImeCompactPercent(this)
-        addSectionTitle("外屏输入法布局")
+        addSectionTitle(getString(R.string.ui_055))
         addCard(
-            if (compact) "紧凑键盘 · $percent%" else "铺满键盘",
-            if (compact) "减少键盘占用高度，保留更多输入框区域。" else "恢复输入法原始铺满布局。"
+            if (compact) getString(R.string.ui_056, percent) else getString(R.string.ui_057),
+            if (compact) getString(R.string.ui_058) else getString(R.string.ui_059)
         )
         addAction(
-            label = if (compact) "切换为铺满键盘" else "切换为紧凑键盘",
+            label = if (compact) getString(R.string.ui_060) else getString(R.string.ui_061),
             emphasized = compact
         ) {
             requestImeCompact(!compact)
@@ -1011,8 +1031,8 @@ class CoverDexControlActivity : Activity() {
         CoverDisplayConfig.requestImeCompact(this, compact)
         awaitSettingConfirmation(
             isApplied = { CoverDisplayConfig.readImeCompact(this) == compact },
-            successMessage = if (compact) "已切换为紧凑键盘" else "已切换为铺满键盘",
-            failureMessage = "输入法布局切换未生效，请确认模块已加载",
+            successMessage = if (compact) getString(R.string.ui_062) else getString(R.string.ui_063),
+            failureMessage = getString(R.string.ui_064),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
@@ -1022,8 +1042,8 @@ class CoverDexControlActivity : Activity() {
         CoverDisplayConfig.requestImeCompact(this, compact, percent)
         awaitSettingConfirmation(
             isApplied = { CoverDisplayConfig.readImeCompactPercent(this) == percent },
-            successMessage = "紧凑键盘比例已设为 $percent%",
-            failureMessage = "紧凑键盘比例设置未生效，请确认模块已加载",
+            successMessage = getString(R.string.ui_065, percent),
+            failureMessage = getString(R.string.ui_066),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
@@ -1063,7 +1083,7 @@ class CoverDexControlActivity : Activity() {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = Gravity.CENTER_VERTICAL
                         addView(
-                            label("紧凑键盘比例", 15f, palette.text),
+                            label(getString(R.string.ui_067), 15f, palette.text),
                             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
                         )
                         addView(valueLabel, LinearLayout.LayoutParams(-2, -2))
@@ -1080,14 +1100,14 @@ class CoverDexControlActivity : Activity() {
         CoverDisplayConfig.requestSystemUpdateBlocked(this, blocked)
         awaitSettingConfirmation(
             isApplied = { CoverDisplayConfig.readSystemUpdateBlocked(this) == blocked },
-            successMessage = if (blocked) "三星系统更新已停止" else "三星系统更新已恢复",
-            failureMessage = "系统更新状态切换失败，请确认模块已加载",
+            successMessage = if (blocked) getString(R.string.ui_068) else getString(R.string.ui_069),
+            failureMessage = getString(R.string.ui_070),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
 
     private fun renderOutputModeControl() {
-        addSectionTitle("外屏显示模式")
+        addSectionTitle(getString(R.string.ui_071))
         val transaction = CoverQsModeConfig.readTransaction(this)
         val selected = resolveCoverOutputMode(
             CoverDisplayConfig.readFullDex(this),
@@ -1095,21 +1115,21 @@ class CoverDexControlActivity : Activity() {
         )
         val state = when (transaction.state) {
             CoverQsTransition.ORIGINAL -> if (selected == CoverOutputMode.FULL_DEX) {
-                "完整 DeX 桌面"
+                getString(R.string.ui_072)
             } else {
-                "原始外屏下拉"
+                getString(R.string.ui_073)
             }
-            CoverQsTransition.FULL -> "完整内屏下拉"
-            CoverQsTransition.ENABLING -> "正在切换到完整模式"
-            CoverQsTransition.DISABLING -> "正在恢复原始模式"
-            CoverQsTransition.RECOVERING -> "正在回滚未完成切换"
+            CoverQsTransition.FULL -> getString(R.string.ui_074)
+            CoverQsTransition.ENABLING -> getString(R.string.ui_075)
+            CoverQsTransition.DISABLING -> getString(R.string.ui_076)
+            CoverQsTransition.RECOVERING -> getString(R.string.ui_077)
         }
-        addCard("当前模式", state)
+        addCard(getString(R.string.ui_078), state)
         addActionGrid(
             listOf(
-                CoverOutputMode.ORIGINAL to "原始下拉",
-                CoverOutputMode.FULL_QS to "完整下拉",
-                CoverOutputMode.FULL_DEX to "完整 DeX"
+                CoverOutputMode.ORIGINAL to getString(R.string.ui_079),
+                CoverOutputMode.FULL_QS to getString(R.string.ui_080),
+                CoverOutputMode.FULL_DEX to getString(R.string.ui_081)
             ).map { (mode, label) ->
                 ActionOption(
                     label = label,
@@ -1136,9 +1156,9 @@ class CoverDexControlActivity : Activity() {
 
     private fun renderHalfModeControl() {
         val enabled = CoverDisplayConfig.readHalfMode(this)
-        addSectionTitle("隐藏异形区域")
+        addSectionTitle(getString(R.string.ui_082))
         addAction(
-            label = if (enabled) "隐藏异形区域 · 已开启" else "隐藏异形区域 · 已关闭",
+            label = if (enabled) getString(R.string.ui_083) else getString(R.string.ui_084),
             emphasized = enabled
         ) {
             requestHalfMode(!enabled)
@@ -1153,30 +1173,30 @@ class CoverDexControlActivity : Activity() {
                 val status = CoverDisplayConfig.readStatus(this) ?: return@awaitSettingConfirmation false
                 status.revision != previousRevision && status.halfModeEnabled == enabled
             },
-            successMessage = if (enabled) "异形区域已隐藏" else "异形区域已恢复",
-            failureMessage = "异形区域切换失败，请确认模块已加载",
+            successMessage = if (enabled) getString(R.string.ui_085) else getString(R.string.ui_086),
+            failureMessage = getString(R.string.ui_087),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
 
     private fun renderCameraModeControl() {
-        addSectionTitle("完整模式相机")
+        addSectionTitle(getString(R.string.ui_088))
         val mode = CoverDisplayConfig.readCameraMode(this)
         addCard(
-            "相机布局",
+            getString(R.string.ui_089),
             if (mode == CoverCameraMode.INNER) {
-                "使用内屏相机布局，适配完整模式外屏画布"
+                getString(R.string.ui_090)
             } else {
-                "使用系统原始外屏相机布局"
+                getString(R.string.ui_091)
             }
         )
         addActionGrid(
             listOf(
-                CoverCameraMode.INNER to "内屏布局",
-                CoverCameraMode.ORIGINAL to "外屏布局"
+                CoverCameraMode.INNER to getString(R.string.ui_092),
+                CoverCameraMode.ORIGINAL to getString(R.string.ui_093)
             ).map { (candidate, label) ->
                 ActionOption(
-                    label = if (candidate == mode) "$label · 当前" else label,
+                    label = if (candidate == mode) getString(R.string.ui_094, label) else label,
                     emphasized = candidate == mode
                 ) {
                     if (candidate != CoverDisplayConfig.readCameraMode(this)) {
@@ -1191,8 +1211,8 @@ class CoverDexControlActivity : Activity() {
         CoverDisplayConfig.requestCameraMode(this, mode)
         awaitSettingConfirmation(
             isApplied = { CoverDisplayConfig.readCameraMode(this) == mode },
-            successMessage = "已切换为${if (mode == CoverCameraMode.INNER) "内屏相机布局" else "原始外屏相机"}",
-            failureMessage = "相机布局切换未生效，请重启设备以加载新版模块",
+            successMessage = getString(R.string.ui_097, if (mode == CoverCameraMode.INNER) getString(R.string.ui_095) else getString(R.string.ui_096)),
+            failureMessage = getString(R.string.ui_098),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
@@ -1204,8 +1224,8 @@ class CoverDexControlActivity : Activity() {
                 val current = CoverQsModeConfig.readTransaction(this)
                 current.state.isStable() && current.applied == mode
             },
-            successMessage = "快捷设置已切换为${if (mode == CoverQsMode.ORIGINAL) "原始" else "完整"}",
-            failureMessage = "快捷设置模式未生效，系统已保持或恢复原始通道",
+            successMessage = getString(R.string.ui_101, if (mode == CoverQsMode.ORIGINAL) getString(R.string.ui_099) else getString(R.string.ui_100)),
+            failureMessage = getString(R.string.ui_102),
             attempts = 60,
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
@@ -1215,11 +1235,11 @@ class CoverDexControlActivity : Activity() {
         this == CoverQsTransition.ORIGINAL || this == CoverQsTransition.FULL
 
     private fun renderDisplayMetricsControl() {
-        addSectionTitle("显示参数")
+        addSectionTitle(getString(R.string.ui_103))
         val status = CoverDisplayConfig.readStatus(this)
         val snapshot = (status?.resolution as? CoverDisplayResolution.Resolved)?.snapshot
         if (status == null || snapshot == null) {
-            addCard("外屏不可用", "识别到外屏后可修改该显示器的分辨率和 DPI。")
+            addCard(getString(R.string.ui_104), getString(R.string.ui_105))
             return
         }
         val qsTransaction = CoverQsModeConfig.readTransaction(this)
@@ -1240,11 +1260,11 @@ class CoverDexControlActivity : Activity() {
         } ?: resources.displayMetrics.densityDpi
         val currentDensity = configured?.densityDpi ?: nativeDensity
         addCard(
-            "当前输出",
+            getString(R.string.ui_106),
             "display ${snapshot.id} · ${snapshot.width}×${snapshot.height} · $currentDensity dpi"
         )
-        val width = metricsField((configured?.width ?: snapshot.width).toString(), "宽")
-        val height = metricsField((configured?.height ?: snapshot.height).toString(), "高")
+        val width = metricsField((configured?.width ?: snapshot.width).toString(), getString(R.string.ui_107))
+        val height = metricsField((configured?.height ?: snapshot.height).toString(), getString(R.string.ui_108))
         val dpi = metricsField(currentDensity.toString(), "DPI")
         val mode = getSystemService(DisplayManager::class.java)
             ?.getDisplay(snapshot.id)
@@ -1273,9 +1293,9 @@ class CoverDexControlActivity : Activity() {
             )
         )
         val presetLabels = mutableListOf(
-            "自定义",
-            "原始 · ${nativeWidth}×${nativeHeight} · $nativeDensity DPI",
-            "大字号 · ${nativeWidth}×${nativeHeight} · ${presets[2]!!.densityDpi} DPI"
+            getString(R.string.ui_109),
+            getString(R.string.ui_110, nativeWidth, nativeHeight, nativeDensity),
+            getString(R.string.ui_111, nativeWidth, nativeHeight, presets[2]!!.densityDpi)
         )
         if (externalTarget) {
             listOf(5f / 6f, 2f / 3f).forEach { scale ->
@@ -1292,7 +1312,7 @@ class CoverDexControlActivity : Activity() {
                         } == true
                     }) {
                         presets += value
-                        presetLabels += "外接 · ${value.width}×${value.height} · ${value.densityDpi} DPI"
+                        presetLabels += getString(R.string.ui_112, value.width, value.height, value.densityDpi)
                     }
                 }
             }
@@ -1302,7 +1322,7 @@ class CoverDexControlActivity : Activity() {
             } == true
         }) {
             presets += CoverDisplayOverride(fullHdWidth, fullHdHeight, fullHdDensity)
-            presetLabels += "1080P 等比 · $fullHdWidth×$fullHdHeight · $fullHdDensity DPI"
+            presetLabels += getString(R.string.ui_113, fullHdWidth, fullHdHeight, fullHdDensity)
         }
         pageContainer.addView(Spinner(this).apply {
             adapter = object : ArrayAdapter<String>(
@@ -1352,32 +1372,32 @@ class CoverDexControlActivity : Activity() {
             matchWrap().apply { topMargin = dp(8) }
         )
         val metricActions = mutableListOf(
-            ActionOption("应用") {
+            ActionOption(getString(R.string.apply)) {
                 val value = CoverDisplayOverride(
                     width.text.toString().toIntOrNull() ?: 0,
                     height.text.toString().toIntOrNull() ?: 0,
                     dpi.text.toString().toIntOrNull() ?: 0
                 )
                 if (value.width !in 480..7680 || value.height !in 320..4320 || value.densityDpi !in 120..960) {
-                    Toast.makeText(this, "分辨率或 DPI 超出范围", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.ui_114), Toast.LENGTH_SHORT).show()
                 } else if (!displayMetricsAspectMatches(value, nativeWidth, nativeHeight)) {
                     Toast.makeText(
                         this,
                         if (fullQs) {
-                            "完整模式分辨率必须保持近似正方形"
+                            getString(R.string.ui_115)
                         } else {
-                            "分辨率必须保持外屏原生宽高比"
+                            getString(R.string.ui_116)
                         },
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    requestDisplayMetrics(value, "已应用")
+                    requestDisplayMetrics(value, getString(R.string.ui_117))
                 }
             }
         )
         if (configured != null) {
-            metricActions += ActionOption("恢复默认", emphasized = false) {
-                requestDisplayMetrics(null, "已恢复默认")
+            metricActions += ActionOption(getString(R.string.ui_118), emphasized = false) {
+                requestDisplayMetrics(null, getString(R.string.ui_119))
             }
         }
         addActionGrid(metricActions, topMargin = 8)
@@ -1409,7 +1429,7 @@ class CoverDexControlActivity : Activity() {
                 CoverDisplayConfig.encodeOverride(applied) == expected
             },
             successMessage = successMessage,
-            failureMessage = "显示参数未生效，请确认模块已加载",
+            failureMessage = getString(R.string.ui_120),
             onFinished = {
                 refreshCurrentPage(Page.SETTINGS)
             }
@@ -1428,7 +1448,7 @@ class CoverDexControlActivity : Activity() {
             .sortedByDescending { it.refreshRate }
             .distinctBy { it.refreshRate }
 
-        addSectionTitle("外接分辨率")
+        addSectionTitle(getString(R.string.ui_121))
         addActionGrid((listOf<CoverDisplayMode?>(null) + resolutions).map { resolution ->
             val selected = if (resolution == null) {
                 preferred == null
@@ -1437,11 +1457,11 @@ class CoverDexControlActivity : Activity() {
             }
             ActionOption(
                 label = if (resolution == null) {
-                    if (selected) "系统默认 · 当前" else "系统默认"
+                    if (selected) getString(R.string.ui_122) else getString(R.string.ui_123)
                 } else {
                     buildString {
                         append("${resolution.width}×${resolution.height}")
-                        if (selected) append(" · 当前")
+                        if (selected) append(getString(R.string.ui_124))
                     }
                 },
                 emphasized = selected
@@ -1449,14 +1469,14 @@ class CoverDexControlActivity : Activity() {
                 if (!selected) {
                     requestRefreshMode(
                         resolution?.let { selectModeForResolution(supported, it, preferred) },
-                        resolution?.let { "外接分辨率已设为 ${it.width}×${it.height}" }
-                            ?: "外接分辨率已恢复系统默认"
+                        resolution?.let { getString(R.string.ui_125, it.width, it.height) }
+                            ?: getString(R.string.ui_126)
                     )
                 }
             }
         })
 
-        addSectionTitle("外接刷新率")
+        addSectionTitle(getString(R.string.ui_127))
         addActionGrid((listOf<CoverDisplayMode?>(null) + refreshModes).map { refreshMode ->
             val selected = if (refreshMode == null) {
                 preferred == null
@@ -1465,11 +1485,11 @@ class CoverDexControlActivity : Activity() {
             }
             ActionOption(
                 label = if (refreshMode == null) {
-                    if (selected) "系统默认 · 当前" else "系统默认"
+                    if (selected) getString(R.string.ui_122) else getString(R.string.ui_123)
                 } else {
                     buildString {
                         append("${formatRefreshRate(refreshMode.refreshRate)} Hz")
-                        if (selected) append(" · 当前")
+                        if (selected) append(getString(R.string.ui_124))
                     }
                 },
                 emphasized = selected
@@ -1477,8 +1497,8 @@ class CoverDexControlActivity : Activity() {
                 if (!selected) {
                     requestRefreshMode(
                         refreshMode?.let { selectModeForRefresh(supported, it, preferred) },
-                        refreshMode?.let { "外接刷新率已设为 ${formatRefreshRate(it.refreshRate)} Hz" }
-                            ?: "外接刷新率已恢复系统默认"
+                        refreshMode?.let { getString(R.string.ui_128, formatRefreshRate(it.refreshRate)) }
+                            ?: getString(R.string.ui_129)
                     )
                 }
             }
@@ -1499,9 +1519,9 @@ class CoverDexControlActivity : Activity() {
                     displayModesMatch(status.preferredDisplayMode, mode)
             },
             successMessage = successMessage ?: mode?.let {
-                "外接显示器已设为 ${it.width}×${it.height} · ${formatRefreshRate(it.refreshRate)} Hz"
-            } ?: "外接显示器已恢复系统默认输出模式",
-            failureMessage = "外接显示器输出模式未生效",
+                getString(R.string.ui_130, it.width, it.height, formatRefreshRate(it.refreshRate))
+            } ?: getString(R.string.ui_131),
+            failureMessage = getString(R.string.ui_132),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
@@ -1514,8 +1534,8 @@ class CoverDexControlActivity : Activity() {
                 val status = CoverDisplayConfig.readStatus(this) ?: return@awaitSettingConfirmation false
                 status.revision != previousRevision && status.fullDexEnabled == enabled
             },
-            successMessage = if (enabled) "完整外屏 DeX 已开启" else "完整外屏 DeX 已关闭",
-            failureMessage = "桌面模式未生效，请确认模块已加载",
+            successMessage = if (enabled) getString(R.string.ui_133) else getString(R.string.ui_134),
+            failureMessage = getString(R.string.ui_135),
             onFinished = {
                 refreshCurrentPage(Page.SETTINGS)
             }
@@ -1523,27 +1543,27 @@ class CoverDexControlActivity : Activity() {
     }
 
     private fun renderCoverDisplaySelection() {
-        addSectionTitle("外屏选择")
+        addSectionTitle(getString(R.string.ui_136))
         val status = CoverDisplayConfig.readStatus(this)
         if (status == null) {
             addCard(
-                "正在读取外屏状态",
-                "外屏由 system_server 统一识别；App 不会自行猜测显示器。"
+                getString(R.string.ui_137),
+                getString(R.string.ui_138)
             )
-            addAction("刷新外屏状态", emphasized = false) {
+            addAction(getString(R.string.ui_139), emphasized = false) {
                 requestDisplayStatusRefresh()
             }
             return
         }
 
         val manual = status.manualIdentity
-        val mode = if (manual == null) "自动识别" else "手动选择"
-        addCard("当前模式 · $mode", displayStatusSummary(status))
-        addSectionTitle("可信候选")
+        val mode = if (manual == null) getString(R.string.ui_140) else getString(R.string.ui_141)
+        addCard(getString(R.string.ui_142, mode), displayStatusSummary(status))
+        addSectionTitle(getString(R.string.ui_143))
         if (status.candidates.isEmpty()) {
             addCard(
-                "暂无可选外屏",
-                "未发现可信的内置或有线显示器。"
+                getString(R.string.ui_144),
+                getString(R.string.ui_145)
             )
         } else {
             val manualToken = manual?.let(CoverDisplayConfig::encodeIdentity)
@@ -1553,19 +1573,19 @@ class CoverDexControlActivity : Activity() {
                 ActionOption(
                     label = buildString {
                         append(displayCandidateLabel(candidate))
-                        if (isManualCandidate) append(" · 当前手动")
+                        if (isManualCandidate) append(getString(R.string.ui_146))
                     },
                     emphasized = isManualCandidate
                 ) {
                     if (!isManualCandidate) {
                         requestDisplayMode(
                             candidate.identity,
-                            "手动选择 ${displayCandidateLabel(candidate)}"
+                            getString(R.string.ui_147, displayCandidateLabel(candidate))
                         )
                     } else {
                         Toast.makeText(
                             this,
-                            "该外屏已是当前手动选择",
+                            getString(R.string.ui_148),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -1575,11 +1595,11 @@ class CoverDexControlActivity : Activity() {
         addActionGrid(
             buildList {
                 if (manual != null) {
-                    add(ActionOption("恢复自动识别", emphasized = false) {
-                        requestDisplayMode(null, "自动识别")
+                    add(ActionOption(getString(R.string.ui_149), emphasized = false) {
+                        requestDisplayMode(null, getString(R.string.ui_140))
                     })
                 }
-                add(ActionOption("刷新候选列表", emphasized = false) {
+                add(ActionOption(getString(R.string.ui_150), emphasized = false) {
                     requestDisplayStatusRefresh()
                 })
             },
@@ -1612,15 +1632,15 @@ class CoverDexControlActivity : Activity() {
         val previousRevision = CoverDisplayConfig.readStatus(this)?.revision ?: 0L
         val expectedIdentity = CoverDisplayConfig.encodeIdentity(identity)
         CoverDisplayConfig.requestMode(this, identity)
-        Toast.makeText(this, "正在应用$label…", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.ui_151, label), Toast.LENGTH_SHORT).show()
         awaitSettingConfirmation(
             isApplied = {
                 val status = CoverDisplayConfig.readStatus(this) ?: return@awaitSettingConfirmation false
                 status.revision != previousRevision &&
                     CoverDisplayConfig.encodeIdentity(status.manualIdentity) == expectedIdentity
             },
-            successMessage = "${label}已生效",
-            failureMessage = "${label}未生效，请确认模块已加载后重试",
+            successMessage = getString(R.string.ui_152, label),
+            failureMessage = getString(R.string.ui_153, label),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
@@ -1628,14 +1648,14 @@ class CoverDexControlActivity : Activity() {
     private fun requestDisplayStatusRefresh() {
         val previousRevision = CoverDisplayConfig.readStatus(this)?.revision ?: 0L
         CoverDisplayConfig.requestStatus(this)
-        Toast.makeText(this, "正在刷新外屏状态…", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.ui_154), Toast.LENGTH_SHORT).show()
         awaitSettingConfirmation(
             isApplied = {
                 val revision = CoverDisplayConfig.readStatus(this)?.revision ?: return@awaitSettingConfirmation false
                 revision != previousRevision
             },
-            successMessage = "外屏状态已刷新",
-            failureMessage = "未收到 system_server 响应，请确认模块已加载",
+            successMessage = getString(R.string.ui_155),
+            failureMessage = getString(R.string.ui_156),
             onFinished = { refreshCurrentPage(Page.SETTINGS) }
         )
     }
@@ -1692,7 +1712,7 @@ class CoverDexControlActivity : Activity() {
     private fun updateHomeStatus() {
         val status = CoverDisplayConfig.readStatus(this)
         homeStatusBody?.text = status?.let(::displayStatusSummary)
-            ?: "等待 system_server 返回外屏状态。"
+            ?: getString(R.string.ui_017)
     }
 
     private fun scheduleDisplayStatusRefresh(
@@ -1710,46 +1730,46 @@ class CoverDexControlActivity : Activity() {
     }
 
     private fun displayStatusSummary(status: CoverDisplayStatus): String {
-        val mode = if (status.manualIdentity == null) "自动" else "手动"
+        val mode = if (status.manualIdentity == null) getString(R.string.ui_157) else getString(R.string.ui_158)
         val result = when (val resolution = status.resolution) {
             is CoverDisplayResolution.Resolved -> {
                 val snapshot = resolution.snapshot
-                val displayName = snapshot.name?.takeIf(String::isNotBlank) ?: "内置外屏"
+                val displayName = snapshot.name?.takeIf(String::isNotBlank) ?: getString(R.string.ui_159)
                 val source = when (resolution.source) {
-                    CoverDisplaySelectionSource.AUTO -> "自动命中"
-                    CoverDisplaySelectionSource.MANUAL -> "手动命中"
-                    CoverDisplaySelectionSource.AUTO_FALLBACK -> "手动目标不可用，已回到自动"
+                    CoverDisplaySelectionSource.AUTO -> getString(R.string.ui_160)
+                    CoverDisplaySelectionSource.MANUAL -> getString(R.string.ui_161)
+                    CoverDisplaySelectionSource.AUTO_FALLBACK -> getString(R.string.ui_162)
                 }
                 "$displayName · ${snapshot.width}×${snapshot.height} · $source"
             }
-            is CoverDisplayResolution.Ambiguous -> "存在多个同等可信候选，安全起见未猜测"
+            is CoverDisplayResolution.Ambiguous -> getString(R.string.ui_163)
             is CoverDisplayResolution.Unavailable -> when (resolution.reason) {
                 "default-display-missing", "default-display-size-missing" ->
-                    "显示服务尚未就绪，保持原生行为"
+                    getString(R.string.ui_164)
                 "manual-missing-auto-unavailable", "cover-display-missing" ->
-                    "当前没有可信外屏，保持原生行为"
-                else -> "外屏暂不可用，保持原生行为"
+                    getString(R.string.ui_165)
+                else -> getString(R.string.ui_166)
             }
         }
-        return "模式：$mode\n解析结果：$result"
+        return getString(R.string.ui_167, mode, result)
     }
 
     private fun displayCandidateLabel(candidate: CoverDisplayCandidateStatus): String {
-        val name = candidate.name?.takeIf(String::isNotBlank) ?: "内置显示器"
+        val name = candidate.name?.takeIf(String::isNotBlank) ?: getString(R.string.ui_168)
         return "$name · ${candidate.width}×${candidate.height}"
     }
 
     private fun renderTheme() {
         val selected = ModuleThemeStore.selected(this)
-        addCard("显示模式", "主题设置仅作用于模块 App，不修改系统或外屏应用主题。")
+        addCard(getString(R.string.ui_169), getString(R.string.ui_170))
         addActionGrid(
             listOf(
-                ModuleTheme.SYSTEM to "跟随系统",
-                ModuleTheme.LIGHT to "浅色",
-                ModuleTheme.DARK to "深色"
+                ModuleTheme.SYSTEM to getString(R.string.ui_171),
+                ModuleTheme.LIGHT to getString(R.string.ui_172),
+                ModuleTheme.DARK to getString(R.string.ui_173)
             ).map { (theme, title) ->
                 ActionOption(
-                    label = if (selected == theme) "$title（当前）" else title,
+                    label = if (selected == theme) getString(R.string.ui_174, title) else title,
                     emphasized = selected == theme
                 ) {
                     if (selected != theme) {
@@ -1758,7 +1778,7 @@ class CoverDexControlActivity : Activity() {
                     } else {
                         Toast.makeText(
                             this,
-                            "$title 已是当前主题",
+                            getString(R.string.ui_175, title),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -1769,17 +1789,17 @@ class CoverDexControlActivity : Activity() {
 
     private fun renderCharity() {
         addCard(
-            "救助流浪猫 · 街猫项目",
-            "通过街猫 App 云守护流浪猫，可用签到获得的免费爱心币投喂猫粮。从街猫入口正常充话费、点外卖或购物，也会返还爱心币，无需购买指定商品。"
+            getString(R.string.ui_176),
+            getString(R.string.ui_177)
         )
         addActionGrid(
             listOf(
-                ActionOption("查看详情") { openUrl(CHARITY_PROJECT_PAGE) },
-                ActionOption("复制链接", emphasized = false) {
+                ActionOption(getString(R.string.ui_178)) { openUrl(CHARITY_PROJECT_PAGE) },
+                ActionOption(getString(R.string.ui_179), emphasized = false) {
                     getSystemService(ClipboardManager::class.java).setPrimaryClip(
-                        ClipData.newPlainText("街猫公益项目", CHARITY_PROJECT_PAGE)
+                        ClipData.newPlainText(getString(R.string.ui_180), CHARITY_PROJECT_PAGE)
                     )
-                    Toast.makeText(this, "链接已复制", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.ui_181), Toast.LENGTH_SHORT).show()
                 }
             )
         )
@@ -1789,15 +1809,15 @@ class CoverDexControlActivity : Activity() {
         val installedVersion = currentVersion()
         pageContainer.addView(
             label(
-                "在外屏运行原生桌面与 App，并提供旋转、磁贴和独立息屏控制。",
+                getString(R.string.ui_182),
                 14f,
                 palette.secondaryText
             ).apply { setPadding(dp(2), 0, dp(2), dp(12)) },
             matchWrap()
         )
-        addInfoRow("当前版本", installedVersion)
-        addInfoRow("作者", "AndyNull")
-        addSectionTitle("更新与发布")
+        addInfoRow(getString(R.string.ui_183), installedVersion)
+        addInfoRow(getString(R.string.ui_184), "AndyNull")
+        addSectionTitle(getString(R.string.ui_185))
         val updateStatus = label("", 13f, palette.onPrimaryContainer).apply {
             visibility = View.GONE
             gravity = Gravity.CENTER_VERTICAL
@@ -1814,9 +1834,9 @@ class CoverDexControlActivity : Activity() {
             setPadding(dp(16), dp(14), dp(16), dp(14))
             background = roundedBackground(palette.surface, palette.outline, 16)
         }
-        val updateButton = actionButton("检查更新", true) { button ->
+        val updateButton = actionButton(getString(R.string.ui_186), true) { button ->
             button.isEnabled = false
-            button.text = "正在检查…"
+            button.text = getString(R.string.ui_187)
             updateStatus.visibility = View.VISIBLE
             updateStatus.setTextColor(palette.onPrimaryContainer)
             updateStatus.background = roundedBackground(
@@ -1824,10 +1844,10 @@ class CoverDexControlActivity : Activity() {
                 Color.TRANSPARENT,
                 14
             )
-            updateStatus.text = "正在连接 GitHub Releases"
+            updateStatus.text = getString(R.string.ui_188)
             releaseNotes.visibility = View.GONE
             Thread {
-                val result = GitHubReleaseChecker.check(installedVersion)
+                val result = GitHubReleaseChecker.check(this, installedVersion)
                 mainHandler.post {
                     if (isFinishing || isDestroyed) return@post
                     button.isEnabled = true
@@ -1836,23 +1856,23 @@ class CoverDexControlActivity : Activity() {
                             is ReleaseCheckResult.UpdateAvailable -> {
                                 val release = checkResult.release
                                 updateStatus.setTextColor(palette.onPrimaryContainer)
-                                updateStatus.text = "发现新版本 ${release.tag} · ${release.name}"
-                                button.text = "前往 Releases"
+                                updateStatus.text = getString(R.string.ui_189, release.tag, release.name)
+                                button.text = getString(R.string.ui_190)
                                 button.setOnClickListener {
                                     openUrl(GitHubReleaseChecker.RELEASES_PAGE)
                                 }
                                 releaseNotes.text = buildString {
                                     append("${release.name} · ${release.tag}\n")
-                                    append("发布时间：${release.publishedAt}\n\n")
-                                    append(release.notes.ifBlank { "该 Release 未填写更新日志。" })
+                                    append(getString(R.string.ui_191, release.publishedAt))
+                                    append(release.notes.ifBlank { getString(R.string.ui_192) })
                                 }
                                 releaseNotes.visibility = View.VISIBLE
                             }
 
                             ReleaseCheckResult.UpToDate -> {
                                 updateStatus.setTextColor(palette.onPrimaryContainer)
-                                updateStatus.text = "当前已是最新版本"
-                                button.text = "重新检查"
+                                updateStatus.text = getString(R.string.ui_193)
+                                button.text = getString(R.string.ui_194)
                                 releaseNotes.visibility = View.GONE
                             }
                         }
@@ -1865,8 +1885,8 @@ class CoverDexControlActivity : Activity() {
                             14
                         )
                         updateStatus.text =
-                            "检查失败：${GitHubReleaseChecker.failureMessage(error)}"
-                        button.text = "重试检查"
+                            getString(R.string.ui_195, GitHubReleaseChecker.failureMessage(this, error))
+                        button.text = getString(R.string.ui_196)
                     }
                 }
             }.apply {
@@ -1898,18 +1918,18 @@ class CoverDexControlActivity : Activity() {
             matchWrap().apply { topMargin = dp(12) }
         )
         renderFeedbackDiagnostics()
-        addSectionTitle("交流 / 反馈")
+        addSectionTitle(getString(R.string.ui_197))
         val communityRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             addView(
-                communityIconButton(R.drawable.ic_qq, "QQ 交流群") {
+                communityIconButton(R.drawable.ic_qq, getString(R.string.ui_198)) {
                     openUrl(QQ_GROUP_PAGE)
                 },
                 LinearLayout.LayoutParams(dp(42), dp(42))
             )
             addView(
-                communityIconButton(R.drawable.ic_github, "GitHub 项目主页") {
+                communityIconButton(R.drawable.ic_github, getString(R.string.ui_199)) {
                     openUrl(PROJECT_PAGE)
                 },
                 LinearLayout.LayoutParams(dp(42), dp(42)).apply { marginStart = dp(8) }
@@ -1923,19 +1943,19 @@ class CoverDexControlActivity : Activity() {
         val mode = DebugLogCaptureConfig.readMode(this)
         val limitMb = DebugLogCaptureConfig.readLimitMb(this)
         val stats = DebugLogCaptureService.logStats(this)
-        addSectionTitle("反馈与诊断")
+        addSectionTitle(getString(R.string.ui_200))
         addCard(
-            if (active) "${mode.label}日志抓取中" else "日志抓取已停止",
-            "单文件上限 $limitMb MB · 已有 ${stats.count} 个日志 · " +
+            if (active) getString(R.string.ui_201, getString(mode.label)) else getString(R.string.ui_202),
+            getString(R.string.ui_203, limitMb, stats.count) +
                 "${stats.totalBytes / 1024 / 1024} MB"
         )
         addActionGrid(DebugLogMode.entries.map { candidate ->
             ActionOption(
-                label = candidate.label,
+                label = getString(candidate.label),
                 emphasized = candidate == mode
             ) {
                 if (active) {
-                    Toast.makeText(this, "请先停止当前日志抓取", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.ui_204), Toast.LENGTH_SHORT).show()
                 } else if (candidate != mode) {
                     DebugLogCaptureConfig.writeMode(this, candidate)
                     refreshCurrentPage(Page.ABOUT)
@@ -1945,15 +1965,15 @@ class CoverDexControlActivity : Activity() {
         renderDebugLogLimit(limitMb, active)
         addActionGrid(
             listOf(
-                ActionOption(if (active) "停止" else "开始", active) {
+                ActionOption(if (active) getString(R.string.ui_205) else getString(R.string.ui_206), active) {
                     if (active) DebugLogCaptureService.stop(this)
                     else DebugLogCaptureService.start(this)
                     mainHandler.postDelayed({ refreshCurrentPage(Page.ABOUT) }, 300L)
                 },
-                ActionOption("分享", emphasized = false) {
+                ActionOption(getString(R.string.ui_207), emphasized = false) {
                     shareDebugLog(stats.latestUri, active)
                 },
-                ActionOption("删除", emphasized = false) {
+                ActionOption(getString(R.string.ui_208), emphasized = false) {
                     confirmClearDebugLogs(active)
                 }
             ),
@@ -1988,12 +2008,12 @@ class CoverDexControlActivity : Activity() {
                 gravity = Gravity.CENTER_VERTICAL
                 addView(valueBox, LinearLayout.LayoutParams(0, dp(42), 1f))
                 addView(
-                    actionButton("设置上限", false) {
+                    actionButton(getString(R.string.ui_209), false) {
                         val value = field.text.toString().toIntOrNull()
                         if (active) {
-                            Toast.makeText(this@CoverDexControlActivity, "请先停止当前日志抓取", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@CoverDexControlActivity, getString(R.string.ui_204), Toast.LENGTH_SHORT).show()
                         } else if (value == null || value !in 10..500) {
-                            Toast.makeText(this@CoverDexControlActivity, "文件上限必须为 10-500 MB", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@CoverDexControlActivity, getString(R.string.ui_210), Toast.LENGTH_SHORT).show()
                         } else {
                             DebugLogCaptureConfig.writeLimitMb(this@CoverDexControlActivity, value)
                             refreshCurrentPage(Page.ABOUT)
@@ -2008,32 +2028,32 @@ class CoverDexControlActivity : Activity() {
 
     private fun shareDebugLog(uri: Uri?, active: Boolean) {
         if (active) {
-            Toast.makeText(this, "请先停止当前日志抓取", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.ui_204), Toast.LENGTH_SHORT).show()
             return
         }
         if (uri == null) {
-            Toast.makeText(this, "暂无可分享的日志", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.ui_211), Toast.LENGTH_SHORT).show()
             return
         }
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }, "分享调试日志"))
+        }, getString(R.string.ui_212)))
     }
 
     private fun confirmClearDebugLogs(active: Boolean) {
         if (active) {
-            Toast.makeText(this, "请先停止当前日志抓取", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.ui_204), Toast.LENGTH_SHORT).show()
             return
         }
         AlertDialog.Builder(this)
-            .setTitle("清空调试日志")
-            .setMessage("删除 Download/FlexUnlockLogs 中的全部 FlexUnlock 日志？")
-            .setNegativeButton("取消", null)
-            .setPositiveButton("删除") { _, _ ->
+            .setTitle(getString(R.string.ui_213))
+            .setMessage(getString(R.string.ui_214))
+            .setNegativeButton(getString(R.string.ui_215), null)
+            .setPositiveButton(getString(R.string.ui_208)) { _, _ ->
                 val deleted = DebugLogCaptureService.clearLogs(this)
-                Toast.makeText(this, "已删除 $deleted 个日志", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.ui_216, deleted), Toast.LENGTH_SHORT).show()
                 refreshCurrentPage(Page.ABOUT)
             }
             .show()
@@ -2240,13 +2260,13 @@ class CoverDexControlActivity : Activity() {
         )
         Toast.makeText(
             this,
-            "正在切换快捷设置为 ${grid.label}…",
+            getString(R.string.ui_217, grid.label),
             Toast.LENGTH_SHORT
         ).show()
         awaitSettingConfirmation(
             isApplied = { CoverQsGridConfig.read(this) == grid },
-            successMessage = "快捷设置已切换为 ${grid.label}",
-            failureMessage = "快捷设置未生效，请确认 system_server 模块已加载",
+            successMessage = getString(R.string.ui_218, grid.label),
+            failureMessage = getString(R.string.ui_219),
             onFinished = {
                 if (currentPage == Page.TILES) showPage(Page.TILES)
             }
@@ -2265,16 +2285,16 @@ class CoverDexControlActivity : Activity() {
         sendBroadcast(
             Intent(updateIntent).setPackage(CoverRuntime.SAMSUNG_LAUNCHER_PACKAGE)
         )
-        val surfaceLabel = if (surface == COVER_ICON_SURFACE_HOME) "桌面" else "应用抽屉"
+        val surfaceLabel = if (surface == COVER_ICON_SURFACE_HOME) getString(R.string.ui_220) else getString(R.string.ui_221)
         Toast.makeText(
             this,
-            "正在设置$surfaceLabel 图标…",
+            getString(R.string.ui_222, surfaceLabel),
             Toast.LENGTH_SHORT
         ).show()
         awaitSettingConfirmation(
             isApplied = { coverIconSizePx(this, surface) == sizePx },
-            successMessage = "$surfaceLabel 图标已设为 ${sizePx}px",
-            failureMessage = "$surfaceLabel 图标设置未生效，请确认 Launcher 模块已加载"
+            successMessage = getString(R.string.ui_223, surfaceLabel, sizePx),
+            failureMessage = getString(R.string.ui_224, surfaceLabel)
         )
     }
 
@@ -2290,17 +2310,17 @@ class CoverDexControlActivity : Activity() {
         )
         Toast.makeText(
             this,
-            if (hidden) "正在关闭桌面顶部状态栏…" else "正在恢复桌面顶部状态栏…",
+            if (hidden) getString(R.string.ui_225) else getString(R.string.ui_226),
             Toast.LENGTH_SHORT
         ).show()
         awaitSettingConfirmation(
             isApplied = { isCoverHomeStatusBarHidden(this) == hidden },
             successMessage = if (hidden) {
-                "已关闭桌面顶部状态栏"
+                getString(R.string.ui_227)
             } else {
-                "已恢复桌面顶部状态栏"
+                getString(R.string.ui_228)
             },
-            failureMessage = "顶部状态栏设置未生效，请确认 SystemUI 模块已加载",
+            failureMessage = getString(R.string.ui_229),
             onFinished = {
                 pendingHomeStatusBarHidden = null
                 refreshCurrentPage(Page.SETTINGS)
@@ -2318,23 +2338,23 @@ class CoverDexControlActivity : Activity() {
         Toast.makeText(
             this,
             when (action) {
-                ACTION_ENABLE_COVER_DEX -> "已请求启动或恢复"
-                ACTION_RESTART_COVER_DEX -> "正在重启外屏会话"
-                else -> "已退出当前外屏会话"
+                ACTION_ENABLE_COVER_DEX -> getString(R.string.ui_230)
+                ACTION_RESTART_COVER_DEX -> getString(R.string.ui_231)
+                else -> getString(R.string.ui_232)
             },
             Toast.LENGTH_SHORT
         ).show()
     }
 
     private fun currentVersion(): String = runCatching {
-        packageManager.getPackageInfo(packageName, 0).versionName ?: "未知"
-    }.getOrDefault("未知")
+        packageManager.getPackageInfo(packageName, 0).versionName ?: getString(R.string.ui_233)
+    }.getOrDefault(getString(R.string.ui_233))
 
     private fun openUrl(url: String) {
         runCatching {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         }.onFailure {
-            Toast.makeText(this, "未找到可打开链接的应用", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.ui_234), Toast.LENGTH_SHORT).show()
         }
     }
 
