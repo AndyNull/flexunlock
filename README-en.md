@@ -1,4 +1,4 @@
-# FlexUnlock
+# FlexUnlock	[中文](https://github.com/AndyNull/flexunlock/blob/main/README.md)/English
 
 FlexUnlock is an LSPosed module for the external display of the Samsung Galaxy Z Flip5.
 
@@ -27,6 +27,9 @@ FlexUnlock is an LSPosed module for the external display of the Samsung Galaxy Z
 - Light, dark, and system themes with in-app update checks.
 - Simplified Chinese by default, with an English switch on Home and a saved language preference across app restarts.
 
+## ChangeLogs
+  [Click](https://github.com/AndyNull/flexunlock/blob/main/CHANGELOG-en.md)
+  
 ## Requirements
 
 1. Samsung Galaxy Z Flip5 or Z Flip6.
