@@ -199,6 +199,8 @@ internal object NativeCoverQuickSettingsEditorHooks {
         Collections.synchronizedMap(WeakHashMap())
     private val qsScrollStates: MutableMap<ViewGroup, QsScrollState> =
         Collections.synchronizedMap(WeakHashMap())
+    private val scheduledMediaLayoutPanels: MutableSet<ViewGroup> =
+        Collections.synchronizedSet(Collections.newSetFromMap(WeakHashMap()))
     private val translatedBrightnessGestures: MutableMap<ViewGroup, Boolean> =
         Collections.synchronizedMap(WeakHashMap())
     private val pendingBrightnessMoves: MutableMap<ViewGroup, MotionEvent> =
@@ -251,7 +253,7 @@ internal object NativeCoverQuickSettingsEditorHooks {
                             panel != null &&
                             CoverRuntime.isCoverDisplay(CoverRuntime.displayIdOf(panel.context))
                         ) {
-                            enforceMediaAboveBrightness(panel)
+                            scheduleMediaAboveBrightness(panel)
                         }
                     }
                 }
@@ -3205,6 +3207,7 @@ internal object NativeCoverQuickSettingsEditorHooks {
         val hadOverrides = state.nativeLayoutCaptured ||
             state.clipBaselines.isNotEmpty() ||
             state.offset != 0f
+        val fullyCollapsed = coverQsExpandedFraction() <= 0.001f
         state.offset = 0f
         state.dragging = false
         state.userScrolled = false
@@ -3232,11 +3235,13 @@ internal object NativeCoverQuickSettingsEditorHooks {
                     }
                     view.minimumWidth = 0
                 }
+                if (fullyCollapsed) view.alpha = 0f
             }
             panel.findDescendantByName("subroom_brightness_settings")?.let { view ->
                 view.translationX = state.nativeBrightnessTranslationX
                 view.translationY = state.nativeBrightnessTranslationY
                 view.clipBounds = state.nativeBrightnessClipBounds?.let(::Rect)
+                if (fullyCollapsed) view.alpha = 0f
             }
         }
 
@@ -4529,6 +4534,14 @@ internal object NativeCoverQuickSettingsEditorHooks {
     private fun subTileSpecs(controller: Any): List<String> {
         val host = field(controller, "mHost") ?: return emptyList()
         return normalizeCoverTileSpecs(hostStringList(host, "getSpecs"))
+    }
+
+    private fun scheduleMediaAboveBrightness(panel: ViewGroup) {
+        if (!scheduledMediaLayoutPanels.add(panel)) return
+        panel.postOnAnimation {
+            scheduledMediaLayoutPanels.remove(panel)
+            if (panel.isAttachedToWindow) enforceMediaAboveBrightness(panel)
+        }
     }
 
     private fun migrateLegacyTileSpecs(controller: Any) {

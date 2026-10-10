@@ -1,10 +1,10 @@
 # FlexUnlock	中文/[English](https://github.com/AndyNull/flexunlock/blob/main/README-en.md)
 
-FlexUnlock 是面向 Samsung Galaxy Z Flip5/Flip6 外屏的 LSPosed 模块。
+FlexUnlock 是面向 Samsung Galaxy Z Flip5 / Flip6 外屏的 LSPosed 模块。
 
-> 当前版本：`1.8.20`
+> 当前版本：`1.8.22`
 >
-> 主要适配：Samsung Galaxy Z Flip5/Flip6 、One UI 8.5 测试固件。
+> 适配目标：Samsung Galaxy Z Flip5 / Z Flip6、One UI 8.5；本轮真机验证为 Z Flip5、Android 16。
 
 ## 主要功能
 
@@ -16,9 +16,11 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5/Flip6 外屏的 LSPosed 模块。
 - HDMI、DisplayPort 与 scrcpy 虚拟显示器的独立显示目标。
 - 有线外屏分辨率与刷新率独立选择，选项来自实际支持的显示 mode。
 - scrcpy 外接桌面、任务栏、应用菜单、最近任务、壁纸和导航按钮隔离。
-- 隐藏异形区域：裁剪外屏显示与触摸区域，并同步圆角屏幕形状。
+- 隐藏异形区域：同步裁剪显示形状、圆角和触摸区域，底部手势按裁剪后的完整宽度分为最近任务、主页和返回三段。
 - 0°、90°、180°、270°旋转，以及系统旋转锁定同步。
 - 外屏通知、亮度、媒体、真实闪光灯手电筒和锁屏组件。
+- 通知页复用 SystemUI 通知集合；系统未提供 USB 用途通知时补充不可清除的真实 USB 状态卡，点按进入系统 USB 设置。
+- 通知清除遵守常驻及不可清除标志，“全部清除”保留受保护通知。
 - 外屏锁屏自动息屏时间独立设置；解锁后继续使用系统屏幕超时。
 - 视频、导航等应用的屏幕常亮策略。
 - Honeyboard 紧凑键盘及百分比调整。
@@ -28,11 +30,18 @@ FlexUnlock 是面向 Samsung Galaxy Z Flip5/Flip6 外屏的 LSPosed 模块。
 - 默认简体中文；主页语言卡片可切换英文，退出应用后保留语言选择。
 
 ## 更新日志
-  [查看详情](https://github.com/AndyNull/flexunlock/blob/main/CHANGELOG.md)
-  
+[查看详情](CHANGELOG.md)
+
+### 1.8.22 验证
+
+- 255 项单元测试通过；Release APK 构建及签名验证通过。
+- Z Flip5 冷启动后验证隐藏异形区域下的 0° / 90° / 180° / 270° 显示形状、圆角和手势区域；新底边 BACK / HOME 手势有效。
+- USB 状态卡可打开普通 USB 用途页；清除全部后 USB 与系统常驻卡保留，不改变 USB 用途。
+- 本轮未重测真实 QQ 来信、USB 拔插或锁屏认证挑战；Flip6 本轮未实测。
+
 ## 安装要求
 
-1. Samsung Galaxy Z Flip5 或 Z Flip6等
+1. Samsung Galaxy Z Flip5 或 Z Flip6。
 2. One UI 8.5 固件。
 3. Magisk、Zygisk 和 LSPosed 已安装并启用。
 4. 在 LSPosed 中启用 FlexUnlock，并配置正确作用域。

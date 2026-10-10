@@ -206,13 +206,16 @@ internal object CoverDisplayConfigurationController {
     private var halfModeDisplayId = -1
 
     @Volatile
-    private var halfModeOriginalDisplayShape: Any? = null
-
-    @Volatile
     private var halfModeOriginalRoundedCorners: Any? = null
 
     @Volatile
     private var halfModeWindowGeometry: Triple<Int, Int, Int>? = null
+
+    private var halfModeWindowDisplayShape: Any? = null
+    private var halfModeWindowRoundedCorners: Any? = null
+
+    @Volatile
+    private var halfModeDisplayShapeCache: Any? = null
 
     fun install(classLoader: ClassLoader) {
         val windowManagerClass = XposedHelpers.findClass(
@@ -246,6 +249,34 @@ internal object CoverDisplayConfigurationController {
                 }
             }
         )
+        val halfModeGeometryHook = object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (halfModeDisplayId >= 0 &&
+                    XposedHelpers.getIntField(param.thisObject, "mDisplayId") == halfModeDisplayId
+                ) {
+                    applyHalfModeWindowGeometry(param.thisObject)
+                }
+            }
+        }
+        listOf(
+            "calculateDisplayCutoutForRotation",
+            "calculateRoundedCornersForRotation"
+        ).forEach { method ->
+            XposedBridge.hookAllMethods(displayContentClass, method, halfModeGeometryHook)
+        }
+        // Samsung inlines shape calculation into calls to this per-display cache.
+        val shapeHooks = XposedBridge.hookAllMethods(
+            XposedHelpers.findClass("com.android.server.wm.utils.RotationCache", classLoader),
+            "getOrCompute",
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    if (param.thisObject === halfModeDisplayShapeCache) {
+                        param.args[1] = halfModeWindowDisplayShape
+                    }
+                }
+            }
+        )
+        log("half cover shape cache hook installed methods=${shapeHooks.size}")
         log("cover display metrics controller installed")
     }
 
@@ -493,10 +524,6 @@ internal object CoverDisplayConfigurationController {
             cutout.boundingRects.map { HalfModeRegion(it.left, it.top, it.right, it.bottom) }
         ) ?: error("no rectangular area excludes the display cutout")
         val displayManagerInternal = XposedHelpers.getObjectField(service, "mDisplayManagerInternal")
-        halfModeOriginalDisplayShape = XposedHelpers.getObjectField(
-            displayContent,
-            "mInitialDisplayShape"
-        )
         halfModeOriginalRoundedCorners = XposedHelpers.getObjectField(
             displayContent,
             "mBaseRoundedCorners"
@@ -529,16 +556,15 @@ internal object CoverDisplayConfigurationController {
             val displayContent = XposedHelpers.callMethod(root, "getDisplayContent", displayId)
                 ?: error("display $displayId unavailable")
             val displayManagerInternal = XposedHelpers.getObjectField(service, "mDisplayManagerInternal")
-            halfModeOriginalDisplayShape?.let { shape ->
-                XposedHelpers.setObjectField(displayContent, "mInitialDisplayShape", shape)
-            }
             halfModeOriginalRoundedCorners?.let { corners ->
                 XposedHelpers.setObjectField(displayContent, "mBaseRoundedCorners", corners)
             }
             halfModeDisplayId = -1
-            halfModeOriginalDisplayShape = null
             halfModeOriginalRoundedCorners = null
             halfModeWindowGeometry = null
+            halfModeDisplayShapeCache = null
+            halfModeWindowDisplayShape = null
+            halfModeWindowRoundedCorners = null
             XposedHelpers.callMethod(displayManagerInternal, "setDisplayOffsets", displayId, 0, 0)
             XposedHelpers.callMethod(displayManagerInternal, "setDisplayScalingDisabled", displayId, false)
             XposedHelpers.callMethod(windowManagerInterface(), "clearForcedDisplaySize", displayId)
@@ -554,16 +580,19 @@ internal object CoverDisplayConfigurationController {
         val topLeft = XposedHelpers.callMethod(roundedCorners, "getRoundedCorner", 0)
         val radius = (XposedHelpers.callMethod(topLeft, "getRadius") as Number).toInt()
         val geometry = Triple(width, height, radius)
-        if (halfModeWindowGeometry == geometry) return
-        val shapeClass = Class.forName("android.view.DisplayShape")
-        val shape = XposedHelpers.callStaticMethod(
-            shapeClass,
-            "fromSpecString",
-            roundedRectDisplayShapeSpec(width, height, radius),
-            1f,
-            width,
-            height
-        )
+        if (halfModeWindowGeometry != geometry) {
+            halfModeWindowDisplayShape = XposedHelpers.callStaticMethod(
+                Class.forName("android.view.DisplayShape"),
+                "fromSpecString",
+                roundedRectDisplayShapeSpec(width, height, radius),
+                1f,
+                width,
+                height
+            )
+            halfModeWindowRoundedCorners = createRoundedCorners(width, height, radius)
+            halfModeWindowGeometry = geometry
+        }
+        // Native metric refreshes rebuild these fields even when the size is unchanged.
         XposedHelpers.setObjectField(
             displayContent,
             "mBaseDisplayCutout",
@@ -572,10 +601,9 @@ internal object CoverDisplayConfigurationController {
         XposedHelpers.setObjectField(
             displayContent,
             "mBaseRoundedCorners",
-            createRoundedCorners(width, height, radius)
+            halfModeWindowRoundedCorners
         )
-        XposedHelpers.setObjectField(displayContent, "mInitialDisplayShape", shape)
-        halfModeWindowGeometry = geometry
+        halfModeDisplayShapeCache = XposedHelpers.getObjectField(displayContent, "mDisplayShapeCache")
     }
 
     private fun createRoundedCorners(width: Int, height: Int, radius: Int): Any {

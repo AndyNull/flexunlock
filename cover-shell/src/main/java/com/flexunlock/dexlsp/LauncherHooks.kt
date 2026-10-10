@@ -50,6 +50,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.app.AndroidAppHelper
+import com.flexunlock.dexlsp.config.CoverDisplayConfig
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -8181,14 +8182,15 @@ private var coverRecentsStageManager: Any? = null
             navigationInsets.right,
             navigationInsets.bottom
         ).coerceAtLeast(1)
-        val cutout = metrics.windowInsets.displayCutout ?: display.cutout
-        if (cutout != null) lastCoverDisplayCutout = cutout
+        val halfMode = CoverDisplayConfig.readHalfMode(context)
+        val cutout = if (halfMode) null else metrics.windowInsets.displayCutout ?: display.cutout
+        if (!halfMode && cutout != null) lastCoverDisplayCutout = cutout
         return CoverDisplayGeometry(
             rotation = display.rotation,
             width = bounds.width(),
             height = bounds.height(),
             navigationBarHeight = navigationBarHeight,
-            cutout = cutout ?: lastCoverDisplayCutout
+            cutout = if (halfMode) null else cutout ?: lastCoverDisplayCutout
         )
     }
 
@@ -8215,6 +8217,7 @@ private var coverRecentsStageManager: Any? = null
         ) as? RectF
 
         val fullQs = CoverQsModeConfig.readTransaction(context).isStableFull
+        val halfMode = CoverDisplayConfig.readHalfMode(context)
         val width = geometry.width.toFloat()
         val height = geometry.height.toFloat()
         val zeroRotationCutoutLeft = geometry.cutout
@@ -8226,7 +8229,8 @@ private var coverRecentsStageManager: Any? = null
             geometry.rotation,
             geometry.width,
             zeroRotationCutoutLeft,
-            fullQs
+            fullQs,
+            halfMode
         )
         val firstX = gestureWidth / 3f
         val secondX = gestureWidth * 2f / 3f
@@ -8517,7 +8521,8 @@ private var coverRecentsStageManager: Any? = null
         val context = getFieldOrNull(manager, "context") as? Context
             ?: getFieldOrNull(handler, "context") as? Context
         val fullQs = context?.let { CoverQsModeConfig.readTransaction(it).isStableFull } == true
-        if (context != null && fullQs) {
+        val halfMode = context?.let(CoverDisplayConfig::readHalfMode) == true
+        if (context != null && (fullQs || halfMode)) {
             val geometry = currentCoverDisplayGeometry(context) ?: return null
             val bottomCutoutLeft = geometry.cutout
                 ?.takeIf { geometry.rotation == 0 }
@@ -8528,7 +8533,8 @@ private var coverRecentsStageManager: Any? = null
                 geometry.rotation,
                 geometry.width,
                 bottomCutoutLeft,
-                fullQs = true
+                fullQs = fullQs,
+                halfMode = halfMode
             )
             val configuredRegion = runCatching {
                 val touchRegion = getFieldOrNull(manager, "touchRegion") ?: return@runCatching null

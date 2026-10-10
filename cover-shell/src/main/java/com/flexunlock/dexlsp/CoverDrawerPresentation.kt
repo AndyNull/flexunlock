@@ -216,9 +216,11 @@ internal fun coverGestureSafeWidthPx(
     rotation: Int,
     displayWidthPx: Int,
     bottomCutoutLeftPx: Int?,
-    fullQs: Boolean
+    fullQs: Boolean,
+    halfMode: Boolean = false
 ): Float {
     val width = displayWidthPx.coerceAtLeast(1)
+    if (halfMode) return width.toFloat()
     if (rotation != android.view.Surface.ROTATION_0) return width.toFloat()
     if (bottomCutoutLeftPx != null && bottomCutoutLeftPx in 1 until width) {
         return bottomCutoutLeftPx.toFloat()

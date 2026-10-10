@@ -6,7 +6,12 @@ import android.animation.ValueAnimator
 import android.app.KeyguardManager
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.ActivityOptions
+import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
@@ -55,6 +60,8 @@ internal object NativeCoverNotificationPageHooks {
         "com.android.systemui.statusbar.notification.collection.notifcollection.NotifCollectionListener"
     private const val ACTIVITY_STARTER_CLASS =
         "com.android.systemui.statusbar.phone.StatusBarNotificationActivityStarter"
+    private const val USB_STATUS_KEY = "flexunlock:usb-status"
+    private const val USB_STATE_ACTION = "android.hardware.usb.action.USB_STATE"
 
     private val pages: MutableSet<CoverNotificationPage> = Collections.synchronizedSet(
         Collections.newSetFromMap(WeakHashMap())
@@ -69,7 +76,24 @@ internal object NativeCoverNotificationPageHooks {
     private var activityStarter: Any? = null
     @Volatile
     private var entriesByKey: Map<String, Any> = emptyMap()
+    @Volatile
+    private var pendingPipeline: Any? = null
+    @Volatile
     private var collectionListener: Any? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    @Volatile
+    private var usbConnected = false
+    @Volatile
+    private var usbMtp = false
+    @Volatile
+    private var usbPtp = false
+    @Volatile
+    private var usbRndis = false
+    @Volatile
+    private var usbMidi = false
+    @Volatile
+    private var usbAccessory = false
+    private var usbStateReceiverRegistered = false
     private val coverLaunchIntents = Collections.synchronizedMap(
         WeakHashMap<PendingIntent, Long>()
     )
@@ -159,7 +183,7 @@ internal object NativeCoverNotificationPageHooks {
     }
 
     private fun capturePipeline(candidate: Any, listenerClass: Class<*>) {
-        if (pipeline === candidate && collectionListener != null) return
+        if (pipeline === candidate && collectionListener != null || pendingPipeline === candidate) return
         val listener = Proxy.newProxyInstance(
             listenerClass.classLoader,
             arrayOf(listenerClass)
@@ -177,13 +201,21 @@ internal object NativeCoverNotificationPageHooks {
             }
         }
 
-        runCatching {
-            XposedHelpers.callMethod(candidate, "addCollectionListener", listener)
-            pipeline = candidate
-            collectionListener = listener
-            refreshPages()
-            CoverRuntime.log(SCOPE, "NotifPipeline connected")
-        }.onFailure { unavailable("notification listener registration", it.message) }
+        pendingPipeline = candidate
+        mainHandler.post {
+            if (pipeline === candidate && collectionListener != null) {
+                pendingPipeline = null
+                return@post
+            }
+            runCatching {
+                XposedHelpers.callMethod(candidate, "addCollectionListener", listener)
+                pipeline = candidate
+                collectionListener = listener
+                refreshPages()
+                CoverRuntime.log(SCOPE, "NotifPipeline connected on main thread")
+            }.onFailure { unavailable("notification listener registration", it.message) }
+            pendingPipeline = null
+        }
     }
 
     private fun installPanelHooks(classLoader: ClassLoader) {
@@ -295,6 +327,7 @@ internal object NativeCoverNotificationPageHooks {
             pages.firstOrNull { it.root === root }?.let { return it }
         }
         val qsPanel = getObjectFieldOrNull(controller, "mQSPanel") as? View ?: return null
+        registerUsbStateReceiver(root.context)
         if (qsPanel.parent !== root) {
             return unavailable("page attachment", "mQSPanel is not a direct Window root child").let { null }
         }
@@ -333,6 +366,10 @@ internal object NativeCoverNotificationPageHooks {
     }
 
     private fun openNotification(key: String) {
+        if (key == USB_STATUS_KEY) {
+            openUsbSettings()
+            return
+        }
         val entry = entriesByKey[key] ?: return
         val sbn = getObjectFieldOrNull(entry, "mSbn") as? StatusBarNotification
             ?: return unavailable("notification click", "StatusBarNotification unavailable key=$key")
@@ -380,14 +417,9 @@ internal object NativeCoverNotificationPageHooks {
     }
 
     private fun dismissAllNotifications(context: Context) {
-        val collection = pipeline?.let { getObjectFieldOrNull(it, "mNotifCollection") }
-            ?: return unavailable("dismiss all", "NotifCollection unavailable")
-        val userId = runCatching {
-            (XposedHelpers.callMethod(context, "getUserId") as Number).toInt()
-        }.getOrDefault(0)
-        runCatching {
-            XposedHelpers.callMethod(collection, "dismissAllNotifications", userId, true)
-        }.onFailure { unavailable("dismiss all", it.message) }
+        // Samsung's bulk API can dismiss ongoing rows when its second argument is true.
+        notificationSnapshot(context).filter(CoverNotification::clearable)
+            .forEach { dismissNotification(it.key) }
     }
 
     private fun refreshPages() {
@@ -398,12 +430,7 @@ internal object NativeCoverNotificationPageHooks {
     }
 
     private fun notificationSnapshot(context: Context): List<CoverNotification> {
-        val activePipeline = pipeline ?: return emptyList<CoverNotification>().also {
-            entriesByKey = emptyMap()
-        }
-        val entries = notificationEntries(activePipeline) ?: return emptyList<CoverNotification>().also {
-            entriesByKey = emptyMap()
-        }
+        val entries = pipeline?.let(::notificationEntries).orEmpty()
         val resolved = entries.mapNotNull { entry ->
             val sbn = entry?.let { getObjectFieldOrNull(it, "mSbn") } as? StatusBarNotification
                 ?: return@mapNotNull null
@@ -416,7 +443,7 @@ internal object NativeCoverNotificationPageHooks {
             .toSet()
 
         val keyguardLocked = context.getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
-        return resolved.mapNotNull { (entry, sbn) ->
+        val notifications = resolved.mapNotNull { (entry, sbn) ->
             val notification = sbn.notification
             if (
                 notification.flags and Notification.FLAG_GROUP_SUMMARY != 0 &&
@@ -446,22 +473,111 @@ internal object NativeCoverNotificationPageHooks {
                 postTime = sbn.postTime,
                 clearable = isDismissible(entry, sbn)
             )
-        }.sortedByDescending(CoverNotification::postTime)
+        }.toMutableList()
+        if (usbConnected && resolved.none { (_, sbn) -> isUsbNotification(sbn) }) {
+            notifications += usbStatusNotification(context)
+        }
+        return notifications.sortedByDescending(CoverNotification::postTime)
+    }
+
+    private fun registerUsbStateReceiver(context: Context) {
+        if (usbStateReceiverRegistered) return
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action != USB_STATE_ACTION) return
+                usbConnected = intent.getBooleanExtra("connected", false)
+                usbMtp = intent.getBooleanExtra("mtp", false)
+                usbPtp = intent.getBooleanExtra("ptp", false)
+                usbRndis = intent.getBooleanExtra("rndis", false)
+                usbMidi = intent.getBooleanExtra("midi", false)
+                usbAccessory = intent.getBooleanExtra("accessory", false)
+                refreshPages()
+            }
+        }
+        runCatching {
+            context.registerReceiver(receiver, IntentFilter(USB_STATE_ACTION))
+            usbStateReceiverRegistered = true
+        }.onFailure { unavailable("USB state receiver", it.message) }
+    }
+
+    private fun isUsbNotification(sbn: StatusBarNotification): Boolean {
+        val notification = sbn.notification
+        if (sbn.packageName !in setOf("android", "com.android.systemui", "com.android.mtp", "com.sec.usbsettings")) {
+            return false
+        }
+        val channel = notification.channelId.orEmpty()
+        if (channel == "DEVELOPER") return false
+        if (channel == "USB" || channel == "UsbDevNoti") return true
+        val text = buildString {
+            append(notification.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString().orEmpty())
+            append(' ')
+            append(notification.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty())
+        }.lowercase()
+        if ("debug" in text || "调试" in text) return false
+        return "usb" in text || "mtp" in text || "传输文件" in text || "usb 连接" in text
+    }
+
+    private fun usbStatusNotification(context: Context): CoverNotification {
+        val english = context.resources.configuration.locales[0].language == "en"
+        val function = when {
+            usbMtp -> "mtp"
+            usbPtp -> "ptp"
+            usbRndis -> "rndis"
+            usbMidi -> "midi"
+            usbAccessory -> "accessory"
+            else -> "charging"
+        }
+        return CoverNotification(
+            key = USB_STATUS_KEY,
+            packageName = "android",
+            appName = if (english) "Android System" else "Android 系统",
+            title = usbStatusTitle(english, function),
+            text = if (english) "Tap to change USB options" else "点按可更改 USB 用途",
+            postTime = Long.MAX_VALUE,
+            clearable = false
+        )
+    }
+
+    private fun openUsbSettings() {
+        val root = synchronized(pages) { pages.firstOrNull()?.root } ?: return
+        val starter = activityStarter?.let { getObjectFieldOrNull(it, "mActivityStarter") }
+            ?: return unavailable("USB settings launch", "SystemUI activity starter unavailable")
+        runCatching {
+            val intent = Intent().setComponent(
+                ComponentName("com.android.settings", "com.android.settings.Settings\$UsbDetailsActivity")
+            ).addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
+            val options = ActivityOptions.makeBasic().apply {
+                (root.display?.displayId ?: CoverDisplayResolver.currentId())?.let { launchDisplayId = it }
+            }
+            NativeCoverStatusBarHooks.suppressHomeDuringExternalLaunch()
+            XposedHelpers.callMethod(
+                starter, "startActivityDismissingKeyguard", intent, true, true, null, options, null
+            )
+            collapseCoverPanelAfterLaunch()
+            CoverRuntime.log(SCOPE, "USB settings dispatched through SystemUI activity starter")
+        }.onFailure { unavailable("USB settings launch", it.message) }
     }
 
     private fun notificationEntries(activePipeline: Any): Collection<*>? {
         val collection = getObjectFieldOrNull(activePipeline, "mNotifCollection")
-        return listOfNotNull(activePipeline, collection).firstNotNullOfOrNull { source ->
-            runCatching {
-                XposedHelpers.callMethod(source, "getAllNotifs") as? Collection<*>
-            }.getOrNull() ?: (getObjectFieldOrNull(source, "mNotificationSet") as? Map<*, *>)?.values
-        }
+        val candidates = listOfNotNull(activePipeline, collection).flatMap { source ->
+            listOfNotNull(
+                runCatching {
+                    XposedHelpers.callMethod(source, "getAllNotifs") as? Collection<*>
+                }.getOrNull(),
+                (getObjectFieldOrNull(source, "mNotificationSet") as? Map<*, *>)?.values
+            )
+        }.toMutableList<Collection<*>>()
+        return chooseNotificationEntries(candidates)
     }
 
     private fun isDismissible(entry: Any, sbn: StatusBarNotification): Boolean {
-        val notification = sbn.notification
-        val protectedFlags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
-        if (!sbn.isClearable || notification.flags and protectedFlags != 0) return false
+        if (!notificationFlagsAllowDismissal(sbn.isClearable, sbn.notification.flags)) return false
+        if (runCatching { XposedHelpers.callMethod(entry, "isClearable") }.getOrNull() == false) {
+            return false
+        }
 
         val row = getObjectFieldOrNull(entry, "row") ?: return true
         return runCatching {
@@ -494,6 +610,21 @@ internal object NativeCoverNotificationPageHooks {
         CoverRuntime.log(SCOPE, "$feature unavailable: ${reason ?: "unknown"}")
     }
 }
+
+internal fun chooseNotificationEntries(candidates: List<Collection<*>>): Collection<*> =
+    candidates.maxByOrNull(Collection<*>::size) ?: emptyList<Any>()
+
+internal fun notificationSnapshotChanged(
+    previous: List<CoverNotificationSnapshot>,
+    current: List<CoverNotificationSnapshot>
+): Boolean = previous != current
+
+internal data class CoverNotificationSnapshot(
+    val key: String,
+    val title: String,
+    val text: String,
+    val postTime: Long
+)
 
 private data class CoverNotification(
     val key: String,
@@ -542,7 +673,7 @@ private class CoverNotificationPage(
     private val notificationCards = mutableSetOf<View>()
     private val autoRefreshHandler = Handler(Looper.getMainLooper())
     private val autoRefreshIntervalMs = 2000L
-    private var lastNotificationKeys: Set<String> = emptySet()
+    private var lastNotifications: List<CoverNotification> = emptyList()
     private var lastKeyguardLocked = isKeyguardLocked()
     private var disposed = false
     private val rootAttachListener = object : View.OnAttachStateChangeListener {
@@ -677,7 +808,7 @@ private class CoverNotificationPage(
 
     fun refresh(notifications: List<CoverNotification>) {
         if (disposed) return
-        lastNotificationKeys = notifications.map(CoverNotification::key).toSet()
+        lastNotifications = notifications
         val hasClearableNotifications = notifications.any(CoverNotification::clearable)
         count.text = notifications.size.toString()
         clearAll.visibility = if (hasClearableNotifications) View.VISIBLE else View.GONE
@@ -703,8 +834,7 @@ private class CoverNotificationPage(
     }
 
     private fun refreshIfChanged(notifications: List<CoverNotification>) {
-        val keys = notifications.map(CoverNotification::key).toSet()
-        if (keys != lastNotificationKeys) refresh(notifications)
+        if (notifications != lastNotifications) refresh(notifications)
     }
 
     fun onInterceptTouchEvent(event: MotionEvent): Boolean {
@@ -886,6 +1016,12 @@ private class CoverNotificationPage(
     private fun settle(showNotifications: Boolean) {
         val target = if (showNotifications) -pageWidth().toFloat() else 0f
         notificationPageSelected = showNotifications
+        if (showNotifications) {
+            refresh(snapshotProvider())
+            page.postDelayed({
+                if (!disposed && notificationPageSelected) refresh(snapshotProvider())
+            }, 360L)
+        }
         cancelSettleAnimation()
         settleAnimator = ValueAnimator.ofFloat(offset, target).apply {
             duration = 280L
